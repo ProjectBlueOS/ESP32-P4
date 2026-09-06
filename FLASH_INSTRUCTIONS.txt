@@ -1,0 +1,18 @@
+ESP32-P4 Flashing Instructions
+================================
+
+Merged Binary: build/merged_binary.bin (32MB)
+
+Flash using esptool:
+  python -m esptool --chip esp32p4 -b 460800 --before default-reset --after hard-reset write-flash --flash-mode dio --flash-size 32MB --flash-freq 40m 0x0 build/merged_binary.bin
+
+Flash using idf.py (if port is auto-detected):
+  idf.py -p /dev/ttyUSB0 flash
+
+Flash individual partitions (original layout):
+  python -m esptool --chip esp32p4 -b 460800 --before default-reset --after hard-reset write-flash --flash-mode dio --flash-size 32MB --flash-freq 40m 0x2000 build/bootloader/bootloader.bin 0x8000 build/partition_table/partition-table.bin 0xd000 build/ota_data_initial.bin 0x10000 build/ProjectBlueIDF.bin
+
+Notes:
+- Hold BOOT button while resetting if device fails to enter download mode
+- Use 460800 baud for faster flashing
+- After flashing, device will hard-reset automatically
