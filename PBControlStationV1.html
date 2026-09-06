@@ -1,0 +1,2285 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Project Blue - Ultimate Client</title>
+    <meta charset="utf-8">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600&display=swap');
+
+        :root {
+            --bg-color: #050505;
+            --panel-bg: rgba(20, 25, 35, 0.7);
+            --text-color: #e0faff;
+            --primary: #00f2ff;
+            --neon-cyan: #00f2ff;
+            --neon-blue: #0077ff;
+            --success: #00ffaa;
+            --error: #ff3366;
+            --warning: #ffcc00;
+            --border: rgba(0, 242, 255, 0.3);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% 50%, #101520 0%, #050505 100%);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: var(--text-color);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        h2 {
+            font-weight: 300;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--primary);
+            text-shadow: 0 0 15px rgba(0, 242, 255, 0.5);
+            margin-bottom: 30px;
+        }
+
+        .control-panel {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 20px 30px;
+            border-radius: 16px;
+            box-shadow: var(--glass-shadow);
+            margin-bottom: 30px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        .control-panel:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
+        }
+
+        input[type="text"] {
+            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            color: white;
+            border-radius: 8px;
+            width: 180px;
+            font-family: 'Outfit', sans-serif;
+            outline: none;
+            transition: border 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            padding: 10px 24px;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            color: white;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-transform: uppercase;
+            font-size: 0.8em;
+            letter-spacing: 1px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+
+        .connect {
+            background: rgba(0, 255, 170, 0.15) !important;
+            border-color: var(--success) !important;
+            color: var(--success);
+        }
+
+        .disconnect {
+            background: rgba(255, 51, 102, 0.15) !important;
+            border-color: var(--error) !important;
+            color: var(--error);
+        }
+
+        .fullscreen {
+            background: rgba(0, 119, 255, 0.15) !important;
+            border-color: var(--neon-blue) !important;
+            color: var(--neon-blue);
+        }
+
+        .ping {
+            background: rgba(255, 204, 0, 0.15) !important;
+            border-color: var(--warning) !important;
+            color: var(--warning);
+        }
+
+        .syslog-btn {
+            background: rgba(0, 242, 255, 0.15) !important;
+            border-color: var(--primary) !important;
+            color: var(--primary);
+        }
+
+        .syslog-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .syslog-overlay.open { display: flex; }
+
+        .syslog-popup {
+            background: #0c1018;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8);
+            width: 560px;
+            max-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .syslog-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0,242,255,0.05);
+        }
+        .syslog-header span {
+            font-weight: 600;
+            color: var(--primary);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 0.85em;
+        }
+        .syslog-close {
+            background: rgba(255,51,102,0.2) !important;
+            border: 1px solid var(--error) !important;
+            color: var(--error);
+            padding: 4px 12px !important;
+            font-size: 1.1em !important;
+            cursor: pointer;
+            border-radius: 6px;
+            line-height: 1;
+        }
+        .syslog-close:hover { background: rgba(255,51,102,0.4) !important; }
+
+        .syslog-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 0;
+            max-height: 55vh;
+        }
+
+        .syslog-entry {
+            display: flex;
+            padding: 6px 16px;
+            font-size: 0.8em;
+            font-family: 'Courier New', monospace;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            align-items: center;
+            gap: 10px;
+        }
+        .syslog-entry:hover { background: rgba(255,255,255,0.03); }
+
+        .syslog-ok {
+            color: var(--success);
+        }
+        .syslog-fail {
+            color: var(--error);
+        }
+        .syslog-time {
+            color: rgba(255,255,255,0.35);
+            min-width: 75px;
+            flex-shrink: 0;
+        }
+        .syslog-app {
+            color: var(--primary);
+            min-width: 110px;
+            flex-shrink: 0;
+        }
+        .syslog-op {
+            color: rgba(255,255,255,0.6);
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .syslog-status {
+            min-width: 14px;
+            text-align: center;
+            flex-shrink: 0;
+            font-weight: 700;
+        }
+
+        #frameContainer {
+            position: relative;
+            width: 800px;
+            height: 600px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+            background-color: #000;
+            overflow: hidden;
+            cursor: crosshair;
+            transition: all 0.5s ease;
+        }
+
+        #glCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 800px;
+            margin-top: 15px;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+            color: rgba(0, 242, 255, 0.7);
+        }
+
+        #fpsDisplay {
+            color: var(--primary);
+            font-weight: 600;
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
+        }
+
+        body.fullscreen-mode .control-panel,
+        body.fullscreen-mode .status-bar,
+        body.fullscreen-mode h2,
+        body.fullscreen-mode .info {
+            display: none;
+        }
+
+        body.fullscreen-mode #frameContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            border-radius: 0;
+            margin: 0;
+            z-index: 1000;
+        }
+
+        .info {
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            text-align: center;
+            max-width: 800px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        #frameContainer::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.05) 50%);
+            background-size: 100% 2px;
+            z-index: 2;
+            pointer-events: none;
+            opacity: 0.1;
+        }
+
+        .audio-hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Project Blue Control Station</h2>
+
+    <div class="control-panel">
+        <button id="serialButton" class="connect">Serial</button>
+        <button id="syslogButton" class="syslog-btn">System Log</button>
+        <button id="fullscreenButton" class="fullscreen" disabled>Full Screen</button>
+        <button id="webdrvFolderButton" class="ping" style="background: rgba(0, 242, 255, 0.15) !important; border-color: var(--primary) !important; color: var(--primary);">WebDrVFolder</button>
+    </div>
+
+    <div class="status-bar" style="margin-bottom: 20px;">
+        <div id="status">Ready</div>
+        <div id="fpsDisplay">FPS: --</div>
+    </div>
+
+    <div id="frameContainer">
+        <canvas id="glCanvas" width="800" height="600"></canvas>
+    </div>
+
+    <div class="info">
+        <div style="font-weight: 600; color: var(--primary); margin-bottom: 5px;">OMEGA SYSTEM TRANSMISSION</div>
+        <div style="font-size: 0.8em; color: rgba(255,255,255,0.4);">
+            ACCELERATED RLE v2.0 | ADAPTIVE RESOLUTION | GLASSMORPHISM SHELL
+        </div>
+    </div>
+
+    <audio id="audioPlayer" class="audio-hidden"></audio>
+
+    <div id="syslogOverlay" class="syslog-overlay">
+        <div class="syslog-popup">
+            <div class="syslog-header">
+                <span>System Log</span>
+                <button class="syslog-close" id="syslogClose">&times;</button>
+            </div>
+            <div class="syslog-list" id="syslogList"></div>
+        </div>
+    </div>
+
+    <script id="decoder-worker" type="javascript/worker">
+        const worker_lut = new Uint16Array(256);
+        for (let i = 0; i < 256; i++) {
+            const r3 = (i >> 5) & 0x07;
+            const g3 = (i >> 2) & 0x07;
+            const b2 = i & 0x03;
+
+            const r5 = (r3 << 2) | (r3 >> 1);
+            const g6 = (g3 << 3) | (g3 >> 0);
+            const b5 = (b2 << 3) | (b2 << 1) | (b2 >> 1);
+            worker_lut[i] = (r5 << 11) | (g6 << 5) | b5;
+        }
+
+        const WIDTH = 800;
+        const HEIGHT = 600;
+
+        let workerLastSeq = null;
+
+        self.onmessage = function(e) {
+            try {
+                const ab = e.data.buffer;
+                const type = e.data.type || 0x02;
+                if (!ab) return;
+
+                if (e.data.reset) { workerLastSeq = null; return; }
+
+                if (type === 0x04) {
+
+                    if (ab.byteLength < 9) return;
+                    const headerView = new DataView(ab, 1, 8);
+                    const winX = headerView.getUint16(0, true);
+                    const winY = headerView.getUint16(2, true);
+                    const winW = headerView.getUint16(4, true);
+                    const winH = headerView.getUint16(6, true);
+
+                    const jpegBlob = new Blob([ab.slice(9)], { type: 'image/jpeg' });
+                    createImageBitmap(jpegBlob).then(bitmap => {
+
+                        const canvas = new OffscreenCanvas(winW, winH);
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(bitmap, 0, 0, winW, winH);
+                        const imageData = ctx.getImageData(0, 0, winW, winH).data;
+
+                        const total = winW * winH;
+                        const pixels = new Uint16Array(total);
+
+                        for (let i = 0; i < total; i++) {
+                            const r = imageData[i * 4] >> 3;
+                            const g = imageData[i * 4 + 1] >> 2;
+                            const b = imageData[i * 4 + 2] >> 3;
+                            pixels[i] = (r << 11) | (g << 5) | b;
+
+                        }
+                        self.postMessage({ y: winY, w: winW, h: winH, pixels: pixels, isFullFrame: false, videoX: winX }, [pixels.buffer]);
+                    }).catch(() => {
+
+                    });
+                    return;
+                }
+
+                if (ab.byteLength < 1) return;
+                const view = new DataView(ab);
+                const mode = view.getUint8(0);
+
+                if (mode === 5) {
+                    if (ab.byteLength < 6) return;
+                    const isFullSync = view.getUint8(1) === 1;
+                    const isFrameEnd = view.getUint8(2) === 1;
+                    const stripeCount = view.getUint8(3);
+                    const seq = view.getUint8(4);
+                    let offset = 5;
+
+                    if (workerLastSeq !== null && seq !== workerLastSeq) {
+                        const expect = (workerLastSeq + 1) & 0xFF;
+                        if (seq !== expect) {
+                            const missing = [];
+                            for (let s = expect; s !== seq && missing.length < 32; s = (s + 1) & 0xFF) {
+                                missing.push(s);
+                            }
+                            if (missing.length) self.postMessage({ repair: { kind: 'GAP', seqs: missing } });
+                        }
+                    }
+                    workerLastSeq = seq;
+
+                    const runsToPost = [];
+
+                    const rejectBatch = (reason, detail) => {
+
+                        self.postMessage({ repair: { kind: 'BAD', seqs: [seq] } });
+                    };
+
+                    for (let s = 0; s < stripeCount; s++) {
+                        if (offset + 6 > ab.byteLength) {
+                            rejectBatch('Stripe header overrun', `offset=${offset}, len=${ab.byteLength}`);
+                            break;
+                        }
+                        const y = view.getUint16(offset);
+                        const h = view.getUint16(offset + 2);
+                        const runCount = view.getUint8(offset + 4);
+                        offset += 6;
+                        if (y + h > HEIGHT || h < 1) {
+                            rejectBatch('Bad stripe geometry', `y=${y} h=${h}`);
+                            break;
+                        }
+
+                        let stripeFailed = false;
+                        for (let r = 0; r < runCount; r++) {
+                            if (offset + 6 > ab.byteLength) { stripeFailed = true; break; }
+                            const startX = view.getUint16(offset);
+                            const runW = view.getUint16(offset + 2);
+                            const rleLen = view.getUint16(offset + 4);
+                            offset += 6;
+
+                            if (runW < 1 || startX + runW > WIDTH || rleLen < 3 || rleLen % 3 !== 0 || offset + rleLen > ab.byteLength) {
+                                rejectBatch('Bad run geometry', `x=${startX} w=${runW} rl=${rleLen}`);
+                                stripeFailed = true; break;
+                            }
+                            const rle = new Uint8Array(ab, offset, rleLen);
+                            let sum = 0;
+                            for (let q = 0; q + 3 <= rleLen; q += 3) sum += rle[q];
+                            if (sum !== runW * h) {
+                                rejectBatch('RLE count mismatch', `${sum} != ${runW}x${h}`);
+                                stripeFailed = true; break;
+                            }
+
+                            let rleIdx = 0, pxIdx = 0;
+                            const total = runW * h;
+                            const runPixels = new Uint16Array(total);
+
+                            while (rleIdx < rleLen && pxIdx < total) {
+                                if (rleIdx + 3 > rleLen) break;
+                                const count = rle[rleIdx++];
+                                const colorHi = rle[rleIdx++];
+                                const colorLo = rle[rleIdx++];
+                                const color = (colorHi << 8) | colorLo;
+                                if (count > 0) {
+                                    runPixels.fill(color, pxIdx, Math.min(pxIdx + count, total));
+                                    pxIdx += count;
+                                }
+                            }
+
+                            runsToPost.push({ y: y, videoX: startX, w: runW, h: h, pixels: runPixels });
+                            offset += rleLen;
+                        }
+                        if (stripeFailed) break;
+                    }
+
+                    self.postMessage({
+                        runs: runsToPost,
+                        isFullFrame: isFullSync,
+                        isFrameEnd: isFrameEnd
+                    }, runsToPost.map(r => r.pixels.buffer));
+                    return;
+                }
+            } catch (err) {
+
+            }
+        };
+    </script>
+
+    <script>
+
+        const WS_PORT_UI = 81;
+        const DEFAULT_WIDTH = 800;
+        const DEFAULT_HEIGHT = 600;
+        const APPEND_THROTTLE_MS = 10;
+        const MOUSE_THROTTLE_MS = 16;
+        const WHEEL_THROTTLE_MS = 50;
+        const MIN_BUFFER_TIME = 0.5;
+
+        const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+
+        function getMSECodec() {
+            if (!window.MediaSource) return null;
+
+            const codecs = ['audio/mpeg', 'audio/mp4; codecs="mp4a.40.2"'];
+            for (const codec of codecs) {
+                if (MediaSource.isTypeSupported(codec)) {
+                    console.log(`MSE codec supported: ${codec}`);
+                    return codec;
+                }
+            }
+            return null;
+        }
+        const MIME_CODEC = getMSECodec();
+
+        const USE_BLOB_AUDIO = isFirefox || !MIME_CODEC;
+        if (USE_BLOB_AUDIO) {
+            console.log(`Using Blob Audio fallback (Firefox=${isFirefox})`);
+
+            if (isFirefox) {
+                console.warn('⚠️ Firefox audio streaming has limitations. Chrome is recommended for best audio quality.');
+            }
+        } else {
+            console.log(`Using MSE audio (${MIME_CODEC})`);
+        }
+
+        const PACKET_TYPE_AUDIO = 0x01;
+        const PACKET_TYPE_VIDEO = 0x02;
+        const PACKET_TYPE_RAW8 = 0x03;
+        const PACKET_TYPE_JPEG_VIDEO = 0x04;
+        const PACKET_TYPE_MP4_VIDEO = 0x07;
+
+        const canvas = document.getElementById('glCanvas');
+        const frameContainer = document.getElementById('frameContainer');
+        const gl = canvas.getContext('webgl', { alpha: false, depth: false, stencil: false, antialias: false, powerPreference: 'high-performance', desynchronized: true });
+        const serialButton = document.getElementById('serialButton');
+        const fullScreenBtn = document.getElementById('fullscreenButton');
+        const statusDiv = document.getElementById('status');
+        const fpsDisplay = document.getElementById('fpsDisplay');
+        const audioPlayer = document.getElementById('audioPlayer');
+
+        let uiSocket;
+        let videoWorker;
+        let frameCount = 0;
+        let lastFpsTime = performance.now();
+        let lastMouseSendTime = 0;
+        let lastWheelSendTime = 0;
+        let isFullscreen = false;
+
+        let serialPort = null;
+        let serialReader = null;
+        let serialWriter = null;
+        let serialMode = false;
+        let serialRxBytes = 0;
+        let serialRxBuf = new Uint8Array(0);
+        let serialInitTimer = null;
+        let serialGotVideo = false;
+        let serialCompleteSync = false;
+
+        const PKT_NAMES = { 0x01: 'AUDIO', 0x02: 'VIDEO', 0x03: 'RAW8', 0x04: 'JPEG', 0x07: 'MP4' };
+        const diagState = {
+            events: [],
+            pktCounts: {},
+            pktLast: {},
+            bpsWindow: [],
+            chunks: 0,
+            workerMsgs: 0,
+            runsDecoded: 0,
+            frames: 0,
+            handlerErrors: 0
+        };
+
+        function diagLog(msg, cls) {
+
+            diagState.events.push({ t: new Date().toLocaleTimeString('en-GB', { hour12: false }), msg: msg });
+            if (diagState.events.length > 120) diagState.events.splice(0, diagState.events.length - 120);
+        }
+
+        function diagCountPacket(type, byteLen) {
+            const name = PKT_NAMES[type] || ('0x' + type.toString(16));
+            diagState.pktCounts[name] = (diagState.pktCounts[name] || 0) + 1;
+            diagState.pktLast[name] = performance.now();
+        }
+
+        let frameWidth = DEFAULT_WIDTH;
+        let frameHeight = DEFAULT_HEIGHT;
+        let sliceHeight = 16;
+
+        let audioQueue = [];
+        let mediaSource = null;
+        let sourceBuffer = null;
+        let appendInterval = null;
+        let isAudioStopped = false;
+        let audioStreamActive = false;
+
+        let blobAudioChunks = [];
+        let blobAudioPlayer = null;
+        let blobPlaybackActive = false;
+        let blobBufferTimeout = null;
+
+        let mp4Chunks = [];
+        let mp4ExpectedSize = 0;
+        let mp4ReceivedSize = 0;
+        let mp4VideoElement = null;
+        let mp4BlobUrl = null;
+        let mp4WindowRect = { x: 0, y: 0, w: 320, h: 240 };
+
+        let ytOverlay = null;
+        let ytIframe = null;
+        let ytWindowRect = { x: 0, y: 0, w: 336, h: 200 };
+        let currentSiteType = 'generic';
+
+        function cleanupYTPlayer() {
+            if (ytOverlay) {
+                ytOverlay.remove();
+                ytOverlay = null;
+            }
+            ytIframe = null;
+            currentSiteType = 'generic';
+        }
+
+        function detectSiteType(url) {
+            try {
+                const u = new URL(url);
+                const h = u.hostname.toLowerCase();
+                if (h.includes('youtube.com') || h.includes('youtu.be')) return 'youtube';
+                if (h.includes('bitchute.com')) return 'bitchute';
+                if (h.includes('odysee.com')) return 'odysee';
+                if (h.includes('aniwatchtv.to') || h.includes('aniwatch')) return 'aniwatch';
+            } catch (e) { }
+            return 'generic';
+        }
+
+        function convertToEmbedUrl(url) {
+            try {
+                const u = new URL(url);
+                const h = u.hostname.toLowerCase();
+
+                if (h.includes('youtube.com') || h.includes('youtu.be')) {
+                    let videoId = '';
+                    if (h.includes('youtu.be')) {
+                        videoId = u.pathname.substring(1);
+                    } else if (u.pathname.includes('/embed/')) {
+                        return url;
+                    } else {
+                        videoId = u.searchParams.get('v');
+                    }
+                    if (videoId) {
+                        return `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&rel=0&modestbranding=1&enablejsapi=1`;
+                    }
+                }
+
+                if (h.includes('bitchute.com')) {
+                    const match = u.pathname.match(/\/video\/([\w-]+)/);
+                    if (match) {
+                        return `https://www.bitchute.com/embed/${match[1]}/`;
+                    }
+                }
+
+                if (h.includes('odysee.com')) {
+
+                    const pathParts = u.pathname.split('/');
+                    if (pathParts.length >= 3 && !u.pathname.includes('/$/embed/')) {
+
+                        const claimPath = pathParts.filter(p => p && p !== '$').join('/');
+                        return `https://odysee.com/$/embed/${claimPath}`;
+                    }
+                }
+
+            } catch (e) {
+                console.error('URL Conversion Error:', e);
+            }
+            return url;
+        }
+
+        let isInitialSync = false;
+
+        let texture = null;
+        let textureInitialized = false;
+
+        let syncTimeoutHandle = null;
+        let needsRedraw = false;
+
+        let sfxCtx = null;
+        function initAudioContext() {
+            if (!sfxCtx) {
+                const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                if (AudioCtx) sfxCtx = new AudioCtx();
+            }
+            if (sfxCtx && sfxCtx.state === 'suspended') sfxCtx.resume();
+        }
+        let shotgunBuffer = null;
+        async function decodeShotgunSFX() {
+            if (shotgunBuffer || !sfxCtx) return;
+            try {
+                const response = await fetch(SHOTGUN_SFX_B64);
+                const arrayBuffer = await response.arrayBuffer();
+                shotgunBuffer = await sfxCtx.decodeAudioData(arrayBuffer);
+                console.log("Shotgun SFX decoded successfully");
+            } catch (e) {
+                console.error("Failed to decode shotgun SFX", e);
+            }
+        }
+        const SHOTGUN_SFX_B64 = "data:audio/wav;base64,UklGRjUrAABXQVZFZm10IBAAAAABAAEAIlYAACJWAAABAAgAZGF0YRErAAB/f4F+gH+EfoCCdX2IinmKgIGSgHyIgHSWbnJodHVndXCLl3ifn5Cwba6XlLeptnamk3uHtWVhrbtwbWFfa1XUiLKYvZZjpXB81GapweJutdK+y7GdTuKmhpKtc8BCslvTY2JqrG6Yl8H/rt1oibBKbU+I3vygm8bEtWdPV0OoY8B0k9/X0lCW7n9E5brxjutUi8pPu3/oReJLqnflkCXAK09qWxSmrx1scVIMtYJ6Tk95cpg1HrGXc1JSnDoRACKpnQliI0QtVUgMlY4Whh8AhXeASVqIK5tRKZcAAAAABlcAb4VAO1E+XAhUcTZCK3OAigZMb2cAlgBqKQA0AAGUlwgkFY84iyMAGxUqhQ8uRqIAbCQNGgB+rDoipngnHqcdTxATFA2Rb1RlShFJEhyonphSKbwdnM+gu12Tyq/XW1GfdHPidbpP3Z1Y5rPSd2n1f67D78HVUXvRqLV2+dj9h6rdgqKd4OKNoK5y7tT/3bx1ePzY7dR36ZWt1f/CqP+d/4GAlJCfnffcr3f/tLOJipq9/+Ha6ozZ4v+ZmtTis5eqybu54enqtpfIj4it/6HIe73u6u2Ym9Nltmm/dMxkdLWAxoOP0pWolsGkq3Wcx5Nfn1fARl9RmLRkr4W+VECel7mwSZhFcX6AHEOIh3tFgnAofjEqJBeWljCaIXFFF5N7gSUdQ4lyDIhDHmkHAIUgHUkAXiccMx9FCUJDMBgAVFlOAEtBZ0lQQRxYTAANCjBWWF8HUHcWVzUnfYANSTMoYGkMFWwNP3g6EGQXiUI4GmskfXN7NUtxc2hfcSM+U0CbKYyNPyxtRXVQP3p6Qq93iWuntKFKt61nrKKmWsbCvW+Uk29svV2ZobXGoH+61d2ccIVtz9OBr820dnq0n4yNkemNh4PUocblhtGq2If3rb/Xw4rJq8nm2qeKkuaaieDV37+bt5zRm/TO3a7r4cCwpKSVv7mIwpLY0K2voK7vgd+f4Ny4ya3iuKTS3eOesNp+0bGJfM19qofHzpOxs3C3v6C3pmyuglqTfntrkFN7fWF5eZegdoFuWXOTSmmlm3NWYZxRglt0e5BWfHhOS1qGTzszdHIiRFZuMFlae1B7JiU5c0ErZjtZOl0aSUIdIDAcT0c9ZEwpMSAsXyg0Qk0XKUw+Tj8PSlZOMC4SbzBSVjZUVGU8ME0mc1ZyP1J2Tko0PjIiZG1feXM1XUlgZVhyeFY/hIc/Y3eJe4qHYmdJTVOVlnmPmF2XgFVTTm6fd5Njj6uXp6uFcGaBf2O5mYRrs6GBn4CqwICdu5Chy7euj4WEfri1ntLGmZSLzLWzvt22186kk5jSpuCz2cS+yMDR4ea7opa6taPXydLWyN3Cod3H2qjXrK7Rsdi2rd2rp8zdtOHgyZTO183clcCf2qql1sauxrqnrq2au7fFuqW3wr+wwb2rq5iEjq6Uh56Vn4+jcXqncoVto21/npBdY5dug4h5ilN9iHdsYYuPd1JccXGFYWN3XkhQYEdBcEVYYUBaVDNWMkFuNz9TO2ZYXCtNbT9XZjIxVSxNLCVmM08zUixXWyBdIT9gSFZFSD8iUDRhYFZfMCNLWjEoWENVLic1ZzU6UUswRV1XZE5GYj00aERbTGFhWzxUZ3diX0REWFVKYERYWV1nWXFYgnqBXI2EeWNygV1/hoF4nGtzhZNmem2GcKaPmoWlp6aXgJmVhHuEk4erl5+UiqyHlbKVuKvBsby6ncalscK1wq+mtMiipM+jza/Sn6rQvaXP06+ey9LJq9KlstLW0rOu0tPVw8axp7jBttCu1Mq/waq2zcHAmpqww63CoJqhv568mL2TrMPFppWmjKqlt6eiq6WwmKGTgqyShpuFlqmDqnZ+nHl2h4KFiJKClmyBanuLcXODgpFqdI5nbXxaXn5kXFRgdmpdcWxNWVVHdWlVQ0lCXFNPRVlTWztIQTlOWE1lR0U/ND40Rj1XM18ySTZBWT40Q0I5OzFMV1NbTT43WjBdWUVbUlwwW0Q4S1pVP05KT1VeOD5OUl48Qlo/TkhbYlpdX1NlSWFpZk9ccnJVb2hTZldUWFZaV1tnfluEXXNeb2NrZX+EboqJaYKGdX+FhI+XmHWXioyamZqXj5yGg4WJoZWZlqOlpKGrpZekm6S4o7qio7G9sb6orbPAr5qptq+1v8W0q6yfu6aso6m5obi9uau6tqusu7eqsKm0rMjJsMivsL65vqrBuLvDwsC4pbHCpqqqsq+2rKKmsaacmaG5oKqyqK2nrZmxlJylma2Wio+HopyljYmai4mcj5OXf4F+gHR+g3iHgWyMbHx3cHiBhntud3R5eF57ZWtxcnR3d2dab3BrVFRwYmdtX01ZZUpaYVFTS2RlTGJjXl1ER1dfPl1ZT10/XFlOPko9SEw+UFBOS1o+Wks7RVM+SVNVVz5PO05JPVVYRFZYVl5PXVxVYFFLUUVQUWFYWlhYU19KUFRTUGJWYWRvWG5YYG5tdmptZXp6bmRlenVtf3N4g4OGdIh0hXWFeHiLioSHhY96j4KLmJGdhomWiZaKpI6VoZ+hjp+krJSWn5OhoqOrq7Gdr5+eprGxr6msqqawo6WxpKuqsaWqpb6uvLuxqbmspbS1rr2sprymu6XAuLe+qLKxrLKzt6yzpKK3tq23o7C4n62era+hqaqerKCgpJWcoKmhpp2qopanpZCbnJWLnpaGlYyUjoqMioV9jpN9jIx+gox5eH2FfIV9eHxrend9bn94Z2ZwaWJ0ZmxnYmhda1ldYGRrXWhbYGFlZmVUZVhPW1BbYlJJVGBfXFtcSk1KWVNYVUlKTFJVSEtFRVdDWFNKVUZQUVZGRFNJRU5ER0VMRUdMUlhbRk9NS1FYT19UW1NRU1NeVV5kXFlZU1NmX2FcZ2JuZ2ZmXHBwa3Rmc3JlaHRuanJ5an16gH19gICCc4V8fYV5f3uBiH+Hi4SIipCMlY6Xj5yXm5+UnKChn5GikaSjpZqdoqKinKmqn6qrq66voaejsa6tqqqiqKimtLKupranq7OypaWoqLemtLK0sayrq7avsKystLO2q6uzo7WtrqW0sKOvramfp56rpJygpqymoqiqnpicnJ+kmJ2Sm6GZnpCQlZKWmpOOmIuGioORjoyEioiCgoJ9h4GCh4KGgH14eH1zb3N0cnh0d3FybnN1b2RkZG5qcG1hbWhfZmhkZ1pgXGNbYldbWWFaVlBUWF1QV1VXWFlOWFJQWFZMTU9WTE1QVVBPVkxTT09SUk5RV1JOVFFLSlBQWVNOUE5aXFVQWlpSXVRUXV1SWF5fVFVcYVxYXV5bXGRea2Jpa2dmZ2ZrcGlqZmdyc255eG9tc3d6enZ+eHd9fHt7goV8g4SAiISGg4WDiIWLioiKjYyQmZqOlpWWnJySmJWUnpiao6CZnaWnoKKonqmenqChoaKqo66jpKWira2praWsqK2sp66pqqauqLGnpaewraulq66qrrCqrK+rq6+lpqysoaOnpqaiqaWgpaGipZympaGjnJmfoZmZnpSYm5icm5SOlpWYjZSSi42LkYaOiISGh4OFg4WIgoSCgX57eH59dnp1enNwcnJxeG5scHNvb2hwa2VnZmtnamdrYV9gYGdfXmFeYFpaWVdgVlZWVlVaXF1XW1dWVFFVWlFWUlJTUFlWWFJUUVJYVFZYT1dQUlZYVlBUVVVXWlZUVllaWVVbWV1VVlpdWl5fWFlgWV5dYmJgZ2NlZmNiaWZkbWxqaW1sbGhsa29ybG9udnh0e3R8end7dneAfX16fX6AgYaBgYmEhIqOjYaPjImOkY+Nko+OmJmWlJeZmpaXmpadnp+emZqdo6SknJ6ipZ+ln6GlqaigqKmqpKSlo6iqq6akp6unrKaspaSppKynp6uqpqilqauqpaempKSjpqOioaCfo6OfnqWlnZ6dpKGgmqCdnqCfmpucmZmXk5qTk5WRlpOTjpKTi5GOi4mKhYuLhoKJgIeFf31/f32Bfn55eXh1dXl6cnFzdXF0bnBzcGtsbW9rZ2hqbGVmZGpnY2ZkX2ZmY19cXF1cYmBbYVtfW1xaWVpaXFpXV1hWXFdaV1dWVFVUVFtTV1laVlRWVVRbV1hUV1tWWlhaWFpdWV1dWltZXFleYGBfX1xiX2JlZGVhZWRkZmhmaGVoa2xpam1wbnBscnB0dXZwcXJ5c3l2dnl9eXl6gYKCf32DhYCBhIKGhIuIiYuMjo6Qi46SkJGQkpCQkZKVlpWYlZeXl5uYm5yfn5+goZ2eop+hoKGho6CjoKaipqSjpaWopKijo6enpaSjqaSlqKeopaaoo6WopqKlpaakpaOio6SgoKGioKGio6GgnqCdn5ycmZ6amJqYm5qXl5mXlpaUlZKQjo2RjpCMi42LjYmIh4eJiIWCg4CEgIR9gH59f3p9eH18e3l3eXd0dHJ0cm9ucm5vcGpuamtsaWtpaWdmZ2VlY2djZmNgYl9fYV9gYGFgXGBgX1tcXltdXl5dXV1YWlpcV1dbW1lYWFpYWldYW1tZXF1bXFlbW11aWlpeWl1fW19fYGFeYWBfY2JiYmJkY2RmZWdnZmlnaWlobGpranBubW1wb3JwdHV1c3V1d3h5eHt6fX57fn19f36AgYSGhIOHiIWIh4uMi4qMjIyPjY6PkY+QkZKUlpWXmJWZmZmWm5mZmJyamp6bm5yfnKGeoaChoKGfoaKfo6GgpKCgoaKjoqWloaGkoqWioaGhoqOho6Sgo6Ojn5+jop+eoZ+foJ6enZ6dnZuampmbm5iXmJeVlpeWl5OUlJGRk5GQkJCNj4yNjouMiomHiYiIhoSGg4SCgIF/foCAfH57eXt4enp2dnd3dHV0cnJzcnBvb29sb2tramtsa2tqamZmZ2RmZWZmY2NjYmFjYWJfYF9fYF5eYF9cX1xdX15cXl5bXlxbXVxdXFtcXFtdW15cXltbW19eXF5eXWBdXl5iYWFiYmFhYWJjZGJlZGZnZmZnZ2hnaWlobGptbm1scG5vcHBxcXNzdXV1dnd2eHp5eXp6fH57fn9+foCBgIKEhISGhoaHiImJi4qKi42NjY2QkJCPkJGTkpOVlJaWlZeVlpiXl5mZmZmanJqanZ2bnp2dnp+foKCfn5+goZ+gn6Giop+goqCgn6GgoaGgop+hoKCfoJ+gn56fn6Ccn52dnJubm5ybmpuZmpqXlpaYl5aVlpSTlJSRk5KRj4+Ojo+MjoyLi4mKiIqIh4eGhYWDg4KDgX+AgH9/fX19fHt7e3h4eHh1dnZ0dXRzcXJxcW9vcG1ubGtqamppa2ppZ2dnZ2dmZWRlZGRlY2NiZGNhYGFgYGFhYGBgX2BeX19fXmBeXl9eXl5eXmBgYGBfX2BgX2BgX19gX2BhYWJhYWRjZGVkZWRlZmVlZWhmaGloaGtra2tsbG1sbW5wb29vcXJxc3RzdXV1d3d2eHh6enp8fHx9fn5/gYCCgoGCg4OEhYaIiIeIioqJiouLjY6Ojo6PkJCRkJGTkpSUlJSUlpaWmJaXmJiampqZmZuampucnZ2cnZ2dnJ2cnp2fnp6dnZ6fnZ2fnp6fn56enp6enZ2dnZ2enZ2bm5ubm5uam5qbm5mZmZeYmJeWlpeWlZOVlJSTk5GQkpGPjo6OjY2MjIqLiYmJiYiIh4WFhYSDgoOBgYGAf399fXx9e3t6eXp4eHh2d3V2dHNzcnNxcXFxcW9ubm1ubGxsa2tpaWpoaGhoaGdnZWdmZWZlZWVjY2NjYmNjYmNiYmJhYWFhYmFhYmFhYmFhYWBhYWBgYWFhYWJjYWNjY2RjY2NjZWRkZWVlZmZnZ2dnaGhoaWpqamxsbG1sbW5ubm9wcHFxcnNzc3R0dnV3d3d3eXh5e3t7fH1+fn9/f4CBgYKCgoSEhYWGh4eJiImJi4qKjIyNjI6Nj4+QkZGRkZKSk5STlJSUlZWVl5eYl5iYmZmZmZmampqampubm5ucnJucm5ucnJucnJycnZudm5ubnJycm5ubmpqbm5ubmpmampiZmZmXmJiXl5aWlpWVlZSUk5SSkpKRkJCQj4+Oj42NjIyMi4qKiomIiIeHhoaFhYOEg4OCgoCAf39+fX19fHt7e3p5eHh3d3d2dnV0dHNzcnJxcXBwcG5ubW1ubWxrbGtqamlqaWlpaGdoZ2dmZ2ZmZWVlZWVkZWVkY2RkY2NjZGNjY2NjYmNjY2NjY2NkY2RjY2RlZGRlZWVlZWVlZmZmZmdoaGhoaGhpaWpqamtsbG1tbm1ub29vcHFxcnJyc3NzdHV2dnZ3d3h5eXl6enx8fH19fn5/f4GAgYGDgoODhIWGhoaHh4iIioqKi4yMjIyNjo6Pj4+QkJGRkpKSk5KTk5SUlJWVlpaWl5eXmJeYmJiYmZiZmZmZmZqampmampqampqampqampqampmampqZmpmZmJmYmJiXmJeXlpeWlpaWlZWUlJSUk5OSkpGRkZCRkJCPjo6NjIyMjIuLi4qJiYiIh4aGhoWFhIODg4GCgICAf39+fX18fHx7enp5eXh4eHd3dnV1dHRzc3NycnFxcHBwb29ubm5tbGxsbGtra2pqaWppaGloaGdoaGdnZ2dnZmZmZmZmZWVlZmVlZWVlZWVlZWVlZWVmZWVlZWZmZmZmZmdnZ2hnaGhoaGlpaWppamtra2tsbGxtbW5ub29vb3BxcXFycnNzc3R0dXV2dnd3eHh5eXp6e3t8fH1+fn5/f4CBgYKCgoODhISFhoaHh4iIiYmJioqLi4yMjY2Njo6Pj4+QkJCRkZKSkpOTk5OUlJSVlZWVlpaWlpaWl5eXl5eYmJiXmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJeXl5eXlpaWlpWVlZWVlJSUlJSTk5KSkpKRkJCQj5CPjo6NjY2MjIyLi4qJiYmJiIeHh4aFhYSEhIODgoKBgYCAf39/fX19fHx7e3p6enl4eHd3dnZ2dXR0dHRzc3JycnFwcHBvb29vbm5tbWxsbGtra2trampqaWppaWhoaGhoaGhnaGdnZ2dnZ2dmZ2dmZ2dmZ2dnZ2dnZ2dnZ2doaGhoaGhpaWlpaWppampqa2trbGxsbW1tbW5ubm9vcHBwcXFycnJzc3R0dHV1dnZ3d3d4eXl5enp7e3x8fH1+fn9/f4CAgYKCg4ODhISFhYaGhoeHiIiJiYqKiouLi4yMjY2Ojo6Pj4+QkJCQkZGSkZKTkpOTk5SUlJSUlJWVlZWVlpaWlpaWlpaWl5eWl5aWl5aWl5eWlpaWlpaWlpWVlZWVlZSVlJSUlJOTk5OTkpKSkZGRkJCQkI+Pj46OjY2NjIyLi4uKiomJiIiIh4eGhoWFhYSEg4ODgoKBgYCAf39+fn19fHx8e3t6enl5eHh4d3d2dnV1dXR0c3NzcnJycXFxcHBvb29ubm5tbW1tbGxsbGtra2trampqampqamlpaWlpaWlpaWhoaWhoaGhoaGhoaGlpaWlpaWlpaWlpampqampqa2tra2xsbG1tbW1tbm5ub29vcHBwcXFxcnJyc3N0dHR1dXZ2dnd3eHh4eXl6ent7e3x8fX1+fn5/f4CBgYGCgoODg4SEhYWGhoaHh4iIiImJioqKi4uLjIyNjY2Njo6Pj4+PkJCQkJGRkZKSkpKTk5OTk5OTk5SUlJSUlJWVlJSVlZWVlZWVlZWVlZWVlZWVlZSUlJSUlJSTk5OTk5OSkpKSkZGRkZGQkJCPj4+Pjo6OjY2NjYyMi4uLioqJiYmIiIeHh4aGhoWFhISDg4OCgoGBgIB/f39+fn59fXx8e3t7enp5eXl4eHd3dnZ2dXV1dHR0c3NycnJxcXFxcHBvb29vbm5ubm5tbW1tbGxsbGxrbGtra2tra2pqampqampqampqampqampqampqampqa2tra2tra2tsbGxsbGxtbW1tbm5ubm9vb29vcHBwcXFxcnJyc3NzdHR0dXV2dnZ3d3d4eHh5eXp6ent7fHx8fX1+fn9/f4CAgYGBgoKDg4OEhIWFhYaGh4eHiIiIiYmKioqLi4uLjIyNjY2Njo6Oj4+Pj5CQkJCQkZGRkZGSkpKSkpKSkpOTk5OTk5OTk5OTk5OTk5OTk5OTk5OTk5OTk5OSkpKSkpKSkZGRkZGRkJCQkI+Pj4+Ojo6NjY2NjYyMi4uLi4qKiYmJiYiIh4eGhoaGhYWEhISDg4KCgoGBgICAf39+fn59fXx8fHt7e3p6eXl5eHh3d3d2dnZ1dXV0dHRzc3NzcnJxcXFxcHBwcG9vb29ubm5ubm5tbW1tbW1tbGxsbGxsbGxsbGtra2tra2tra2tra2xsbGxsbGxsbGxsbG1tbW1tbW5ubm5ub29vb29wcHBxcXFxcnJyc3NzdHR0dHV1dXZ2dnd3d3h4eXl5enp6e3t7fHx9fX1+fn9/f4CAgIGBgoKCg4OEhISFhYWGhoaHh4eIiImJiYqKioqLi4uMjIyMjY2Njo6Ojo6Pj4+Pj5CQkJCQkJGRkZGRkZGRkpKSkpKSkpKSkpKSkpKSkpKSkpKSkpGRkZGRkZGRkZCQkJCQkI+Pj4+Pj46Ojo6NjY2NjIyMi4uLi4qKiomJiYiIiIeHh4eGhoWFhYSEhIODgoKCgYGBgICAf39+fn59fX18fHt7e3p6enl5eXh4eHd3d3Z2dnV1dXV0dHRzc3NycnJycXFxcXBwcHBwb29vb29vbm5ubm5ubm5tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW1tbW5ubm5ubm5ub29vb29wcHBwcHFxcXFycnJyc3Nzc3R0dHV1dXV2dnZ3d3d4eHh5eXl6enp7e3t8fHx9fX5+fn9/f4CAgIGBgoKCgoODhISEhYWFhoaGh4eHiIiIiYmJiYqKioqLi4uMjIyMjI2NjY2Njo6Ojo6Pj4+Pj4+QkJCQkJCQkJCQkJCRkZGRkZGRkZGRkZGQkZCQkJCQkJCQkJCQj4+Pj4+Pj46Ojo6OjY2NjY2MjIyMi4uLi4qKioqJiYmIiIiIh4eHhoaGhYWFhISEg4ODgoKCgYGBgIB/f39+fn59fX18fHx7e3t6enp5eXl4eHh4d3d3dnZ2dXV1dXR0dHRzc3NzcnJycnFxcXFxcXBwcHBwcG9vb29vb29vb25ubm5ubm5ubm5ubm5ubm5ubm5ubm5ubm9vb29vb29vb3BwcHBwcHBxcXFxcXJycnJyc3Nzc3R0dHR1dXV2dnZ2d3d3eHh4eXl5eXp6ent7e3x8fH19fX5+fn9/f4CAgIGBgYKCgoODg4SEhIWFhYWGhoaHh4eIiIiIiYmJiYqKioqLi4uLjIyMjIyNjY2NjY2Ojo6Ojo6Ojo+Pj4+Pj4+Pj4+Pj4+Pj4+Pj4+Pj4+Pj4+Pj4+Pj4+Pj46Ojo6Ojo6OjY2NjY2NjIyMjIyLi4uLi4qKioqJiYmJiIiIh4eHh4aGhoWFhYWEhISDg4OCgoKBgYGAgIB/f39+fn5+fX19fHx8e3t7enp6eXl5eXh4eHd3d3d2dnZ2dXV1dXR0dHRzc3Nzc3JycnJycnFxcXFxcXFwcHBwcHBwcHBwb29vb29vb29vb29vb29vb29vb29vcHBwcHBwcHBwcHFxcXFxcXFycnJycnNzc3NzdHR0dHR1dXV1dnZ2dnd3d3d4eHh5eXl6enp6e3t7fHx8fH19fX5+fn9/f4CAgIGBgYGCgoKDg4OEhISEhYWFhoaGhoeHh4eIiIiIiYmJiYqKioqKi4uLi4uMjIyMjIyNjY2NjY2NjY2Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo2NjY2NjY2NjIyMjIyMi4uLi4uLioqKioqJiYmJiIiIiIeHh4eGhoaGhYWFhISEhIODg4KCgoKBgYGAgIB/f39/fn5+fX19fHx8fHt7e3p6enp5eXl5eHh4d3d3d3d2dnZ2dXV1dXR0dHR0dHNzc3NzcnJycnJycnJxcXFxcXFxcXFxcXBwcHBwcHBwcHBwcHBwcHBwcHFxcXFxcXFxcXFxcXJycnJycnJzc3Nzc3N0dHR0dHV1dXV1dnZ2dnd3d3d4eHh4eXl5eXp6enp7e3t8fHx8fX19fn5+fn9/f4CAgICBgYGCgoKCg4ODhISEhIWFhYWGhoaGh4eHh4iIiIiIiYmJiYmKioqKiouLi4uLi4uMjIyMjIyMjIyNjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjY2NjYyMjIyMjIyMjIuLi4uLi4qKioqKiomJiYmJiIiIiIiHh4eHhoaGhoWFhYWEhISEg4ODgoKCgoGBgYGAgIB/f39/fn5+fX19fXx8fHx7e3t7enp6eXl5eXh4eHh4d3d3d3Z2dnZ2dXV1dXV0dHR0dHRzc3Nzc3Nzc3JycnJycnJycnJycnFxcXFxcXFxcXFxcXFxcXFxcXJycnJycnJycnJycnJzc3Nzc3NzdHR0dHR0dXV1dXV1dnZ2dnZ3d3d3eHh4eHl5eXl5enp6e3t7e3x8fHx9fX19fn5+fn9/f4CAgICBgYGBgoKCgoODg4OEhISEhYWFhYaGhoaHh4eHh4iIiIiIiYmJiYmJioqKioqKiouLi4uLi4uLi4yMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyLi4uLi4uLi4uKioqKioqKiYmJiYmIiIiIiIiHh4eHhoaGhoaFhYWFhISEhIODg4OCgoKCgYGBgYCAgIB/f39/fn5+fn19fX18fHx8e3t7e3p6enp5eXl5eHh4eHh3d3d3d3Z2dnZ2dnV1dXV1dXR0dHR0dHR0c3Nzc3Nzc3Nzc3NycnJycnJycnJycnJycnJycnJycnJyc3Nzc3Nzc3Nzc3NzdHR0dHR0dHR1dXV1dXV2dnZ2dnZ3d3d3d3h4eHh5eXl5eXp6enp7e3t7fHx8fH19fX19fn5+fn9/f4CAgICAgYGBgYKCgoKDg4ODhISEhIWFhYWFhoaGhoaHh4eHh4iIiIiIiImJiYmJiYmKioqKioqKioqLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLioqKioqKioqKiYmJiYmJiYiIiIiIiIeHh4eHh4aGhoaGhYWFhYWEhISEg4ODg4KCgoKCgYGBgYCAgIB/f39/fn5+fn19fX18fHx8fHt7e3t6enp6enl5eXl5eHh4eHh3d3d3d3Z2dnZ2dnZ1dXV1dXV1dXR0dHR0dHR0dHR0c3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N0dHR0dHR0dHR0dHR1dXV1dXV1dXZ2dnZ2dnd3d3d3d3h4eHh4eXl5eXl6enp6ent7e3t8fHx8fH19fX1+fn5+f39/f3+AgICAgYGBgYKCgoKCg4ODg4SEhISEhYWFhYWGhoaGhoaHh4eHh4eIiIiIiIiIiYmJiYmJiYmJioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKiYmJiYmJiYmJiIiIiIiIiIeHh4eHh4aGhoaGhYWFhYWFhISEhISDg4ODgoKCgoKBgYGBgICAgIB/f39/fn5+fn59fX19fHx8fHx7e3t7e3p6enp6eXl5eXl4eHh4eHh3d3d3d3d2dnZ2dnZ2dnV1dXV1dXV1dXV1dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dHR0dXV1dXV1dXV1dXZ2dnZ2dnZ2d3d3d3d3d3h4eHh4eHl5eXl5enp6enp7e3t7e3x8fHx8fX19fX1+fn5+f39/f3+AgICAgYGBgYGCgoKCgoODg4ODhISEhISFhYWFhYWGhoaGhoaHh4eHh4eHiIiIiIiIiIiIiYmJiYmJiYmJiYmJiYmKioqKioqKioqKioqKioqKioqKiYmJiYmJiYmJiYmJiYmJiIiIiIiIiIiHh4eHh4eHh4aGhoaGhoWFhYWFhYSEhISEg4ODg4OCgoKCgoGBgYGBgICAgIB/f39/fn5+fn59fX19fXx8fHx8e3t7e3t6enp6enp5eXl5eXl4eHh4eHh3d3d3d3d3d3Z2dnZ2dnZ2dnZ1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dXV1dnZ2dnZ2dnZ2dnd3d3d3d3d3eHh4eHh4eHl5eXl5eXp6enp6ent7e3t7fHx8fHx9fX19fX5+fn5+f39/f3+AgICAgIGBgYGBgoKCgoKDg4ODg4OEhISEhIWFhYWFhYWGhoaGhoaGh4eHh4eHh4eIiIiIiIiIiIiIiIiJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiIiIiIiIiIiIiIiIh4eHh4eHh4eHhoaGhoaGhoWFhYWFhYSEhISEhIODg4ODg4KCgoKCgYGBgYGAgICAgH9/f39/f35+fn5+fX19fX18fHx8fHt7e3t7e3p6enp6enl5eXl5eXl4eHh4eHh4d3d3d3d3d3d3d3Z2dnZ2dnZ2dnZ2dnZ2dnZ2dXV1dXV1dXV1dXV1dXV1dnZ2dnZ2dnZ2dnZ2dnZ2dnZ3d3d3d3d3d3d4eHh4eHh4eHl5eXl5eXl6enp6enp7e3t7e3t8fHx8fH19fX19fX5+fn5+f39/f3+AgICAgICBgYGBgYKCgoKCgoODg4ODg4SEhISEhIWFhYWFhYWGhoaGhoaGhoeHh4eHh4eHh4eHiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiHh4eHh4eHh4eHh4aGhoaGhoaGhoWFhYWFhYWEhISEhISDg4ODg4OCgoKCgoKBgYGBgYGAgICAgH9/f39/f35+fn5+fX19fX19fHx8fHx8e3t7e3t7enp6enp6enl5eXl5eXl4eHh4eHh4eHh3d3d3d3d3d3d3d3d3dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ2dnZ3d3d3d3d3d3d3d3d3eHh4eHh4eHh4eXl5eXl5eXl6enp6enp6e3t7e3t7fHx8fHx8fX19fX19fn5+fn5+f39/f3+AgICAgICBgYGBgYGCgoKCgoKDg4ODg4ODhISEhISEhIWFhYWFhYWFhoaGhoaGhoaGhoeHh4eHh4eHh4eHh4eHh4eHiIiIiIiIiIiIiIiIiIiIiIiHh4eHh4eHh4eHh4eHh4eHh4eGhoaGhoaGhoaGhYWFhYWFhYWEhISEhISEg4ODg4ODg4KCgoKCgoGBgYGBgYCAgICAgH9/f39/f35+fn5+fn19fX19fXx8fHx8fHt7e3t7e3t6enp6enp6enl5eXl5eXl5eHh4eHh4eHh4eHh4d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3eHh4eHh4eHh4eHh5eXl5eXl5eXl6enp6enp6ent7e3t7e3x8fHx8fHx9fX19fX1+fn5+fn5/f39/f39/gICAgICAgYGBgYGBgoKCgoKCgoODg4ODg4OEhISEhISEhIWFhYWFhYWFhYaGhoaGhoaGhoaGhoaHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHhoaGhoaGhoaGhoaGhoWFhYWFhYWFhYWEhISEhISEhIODg4ODg4OCgoKCgoKCgYGBgYGBgICAgICAgH9/f39/f35+fn5+fn59fX19fX18fHx8fHx8e3t7e3t7e3t6enp6enp6enl5eXl5eXl5eXl4eHh4eHh4eHh4eHh4eHh4d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d3d4eHh4eHh4eHh4eHh4eHh4eXl5eXl5eXl5eXl6enp6enp6ent7e3t7e3t7fHx8fHx8fH19fX19fX1+fn5+fn5/f39/f39/gICAgICAgYGBgYGBgYKCgoKCgoKCg4ODg4ODg4SEhISEhISEhIWFhYWFhYWFhYWFhYaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaFhYWFhYWFhYWFhYSEhISEhISEhIODg4ODg4ODgoKCgoKCgoKBgYGBgYGBgICAgICAgH9/f39/f35+fn5+fn59fX19fX19fHx8fHx8fHx7e3t7e3t7e3p6enp6enp6enp5eXl5eXl5eXl5eXl5eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eXl5eXl5eXl5eXl5eXp6enp6enp6ent7e3t7e3t7e3x8fHx8fHx8fX19fX19fX5+fn5+fn5/f39/f39/gICAgICAgIGBgYGBgYGBgoKCgoKCgoKDg4ODg4ODg4SEhISEhISEhISEhYWFhYWFhYWFhYWFhYWGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhoaGhYWFhYWFhYWFhYWFhYWFhISEhISEhISEhIODg4ODg4ODg4KCgoKCgoKCgYGBgYGBgYGAgICAgICAf39/f39/f39+fn5+fn5+fX19fX19fX18fHx8fHx8fHt7e3t7e3t7e3p6enp6enp6enp6enl5eXl5eXl5eXl5eXl5eXl5eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh5eXl5eXl5eXl5eXl5eXl5eXl6enp6enp6enp6ent7e3t7e3t7e3t8fHx8fHx8fH19fX19fX19fn5+fn5+fn5/f38=";
+        function playSfx(id) {
+            if (!sfxCtx) return;
+            const t = sfxCtx.currentTime;
+            const osc = sfxCtx.createOscillator();
+            const gain = sfxCtx.createGain();
+            osc.connect(gain);
+            gain.connect(sfxCtx.destination);
+
+            switch (id) {
+                case "EXPLOSION":
+                    const bufferSize = sfxCtx.sampleRate * 0.5;
+                    const buffer = sfxCtx.createBuffer(1, bufferSize, sfxCtx.sampleRate);
+                    const data = buffer.getChannelData(0);
+                    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                    const noise = sfxCtx.createBufferSource();
+                    noise.buffer = buffer;
+                    const noiseGain = sfxCtx.createGain();
+                    noise.connect(noiseGain);
+                    noiseGain.connect(sfxCtx.destination);
+                    noiseGain.gain.setValueAtTime(0.5, t);
+                    noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+                    noise.start();
+                    break;
+                case "LASER":
+                    osc.type = "square";
+                    osc.frequency.setValueAtTime(880, t);
+                    osc.frequency.exponentialRampToValueAtTime(110, t + 0.15);
+                    gain.gain.setValueAtTime(0.1, t);
+                    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
+                    osc.start();
+                    osc.stop(t + 0.2);
+                    break;
+                case "LEVELUP":
+                    osc.type = "sine";
+                    osc.frequency.setValueAtTime(440, t);
+                    osc.frequency.setValueAtTime(880, t + 0.1);
+                    gain.gain.setValueAtTime(0.1, t);
+                    gain.gain.linearRampToValueAtTime(0, t + 0.5);
+                    osc.start();
+                    osc.stop(t + 0.5);
+                    break;
+                case "GAMEOVER":
+                    osc.type = "sawtooth";
+                    osc.frequency.setValueAtTime(110, t);
+                    osc.frequency.linearRampToValueAtTime(55, t + 0.5);
+                    gain.gain.setValueAtTime(0.2, t);
+                    gain.gain.linearRampToValueAtTime(0, t + 0.5);
+                    osc.start();
+                    osc.stop(t + 0.5);
+                    break;
+                case "SHOTGUN":
+                    if (!shotgunBuffer) {
+                        decodeShotgunSFX().then(() => playSfx("SHOTGUN"));
+                        break;
+                    }
+                    const source = sfxCtx.createBufferSource();
+                    source.buffer = shotgunBuffer;
+                    const shotGain = sfxCtx.createGain();
+                    shotGain.gain.setValueAtTime(2.0, t);
+                    source.connect(shotGain);
+                    shotGain.connect(sfxCtx.destination);
+                    source.start(t);
+                    break;
+                case "IMPACT":
+                    osc.type = "sine";
+                    osc.frequency.setValueAtTime(440, t);
+                    osc.frequency.exponentialRampToValueAtTime(80, t + 0.1);
+                    gain.gain.setValueAtTime(0.05, t);
+                    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+                    osc.start();
+                    osc.stop(t + 0.1);
+                    break;
+            }
+        }
+
+        if (!gl) {
+            console.error("WebGL not supported!");
+            statusDiv.textContent = "Error: WebGL Not Supported";
+            statusDiv.style.color = "var(--error)";
+        }
+
+        const vsSrc = `attribute vec2 p; attribute vec2 t; varying vec2 vT; void main(){ gl_Position=vec4(p,0,1); vT=t; }`;
+        const fsSrc = `precision mediump float; uniform sampler2D uI; varying vec2 vT; void main(){ gl_FragColor=texture2D(uI, vT); }`;
+
+        function compile(src, type) {
+            const s = gl.createShader(type);
+            gl.shaderSource(s, src);
+            gl.compileShader(s);
+            if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error("Shader Error:", gl.getShaderInfoLog(s));
+            return s;
+        }
+
+        const prog = gl.createProgram();
+        gl.attachShader(prog, compile(vsSrc, gl.VERTEX_SHADER));
+        gl.attachShader(prog, compile(fsSrc, gl.FRAGMENT_SHADER));
+        gl.linkProgram(prog);
+        gl.useProgram(prog);
+
+        const vertBuf = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertBuf);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+            -1, -1, 0, 1, 1, -1, 1, 1, -1, 1, 0, 0, 1, 1, 1, 0
+        ]), gl.STATIC_DRAW);
+
+        const pLoc = gl.getAttribLocation(prog, "p");
+        const tLoc = gl.getAttribLocation(prog, "t");
+
+        gl.enableVertexAttribArray(pLoc);
+        gl.vertexAttribPointer(pLoc, 2, gl.FLOAT, false, 16, 0);
+        gl.enableVertexAttribArray(tLoc);
+        gl.vertexAttribPointer(tLoc, 2, gl.FLOAT, false, 16, 8);
+
+        function checkGL(caller) {
+            const e = gl.getError();
+            if (e !== gl.NO_ERROR) console.error(`WebGL error after ${caller}: 0x${e.toString(16)}`);
+        }
+
+        texture = gl.createTexture();
+        checkGL('createTexture');
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        checkGL('bindTexture');
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        checkGL('texParameter');
+
+        function updateCanvasSize() {
+            const dpr = window.devicePixelRatio || 1;
+            const displayWidth = frameContainer.clientWidth;
+            const displayHeight = frameContainer.clientHeight;
+
+            if (canvas.width !== Math.floor(displayWidth * dpr) || canvas.height !== Math.floor(displayHeight * dpr)) {
+                canvas.width = Math.floor(displayWidth * dpr);
+                canvas.height = Math.floor(displayHeight * dpr);
+                gl.viewport(0, 0, canvas.width, canvas.height);
+                needsRedraw = true;
+            }
+        }
+        window.addEventListener('resize', updateCanvasSize);
+        updateCanvasSize();
+
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, DEFAULT_WIDTH, DEFAULT_HEIGHT, 0, gl.RGB, gl.UNSIGNED_SHORT_5_6_5, null);
+        checkGL('texImage2D null');
+
+        function renderLoop() {
+            if (pendingWorkerMessages.length > 0) {
+
+                if (isInitialSync || !textureInitialized) {
+                    finalizeInitialSync();
+                }
+
+                if (textureInitialized) {
+                    gl.bindTexture(gl.TEXTURE_2D, texture);
+                    gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+                    while (pendingWorkerMessages.length > 0) {
+                        const msg = pendingWorkerMessages.shift();
+                        const { runs, y, w, h, pixels, isFullFrame, isFrameEnd } = msg;
+
+                        if (runs) {
+                            for (const run of runs) {
+                                gl.texSubImage2D(gl.TEXTURE_2D, 0, run.videoX, run.y, run.w, run.h, gl.RGB, gl.UNSIGNED_SHORT_5_6_5, run.pixels);
+                            }
+                            needsRedraw = true;
+                        } else if (pixels) {
+                            const drawX = (msg.videoX !== undefined) ? msg.videoX : 0;
+                            gl.texSubImage2D(gl.TEXTURE_2D, 0, drawX, y, w, h, gl.RGB, gl.UNSIGNED_SHORT_5_6_5, pixels);
+                            needsRedraw = true;
+                        }
+
+                        if (isFrameEnd === true) {
+                            frameCount++;
+                            diagState.frames++;
+                            sendInput('FRAME_ACK');
+                        }
+                    }
+                }
+            }
+
+            if (needsRedraw && textureInitialized) {
+                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+                checkGL('drawArrays');
+                needsRedraw = false;
+            }
+            requestAnimationFrame(renderLoop);
+        }
+        requestAnimationFrame(renderLoop);
+
+        const blob = new Blob([document.getElementById('decoder-worker').textContent], { type: 'text/javascript' });
+        videoWorker = new Worker(window.URL.createObjectURL(blob));
+
+        let finalizeCount = 0;
+        function finalizeInitialSync() {
+            if (!isInitialSync) return;
+            isInitialSync = false;
+            textureInitialized = true;
+            if (syncTimeoutHandle) clearTimeout(syncTimeoutHandle);
+
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
+
+            needsRedraw = true;
+            statusDiv.textContent = `Connected (800x600) | RX: ${serialRxBytes} bytes`;
+            statusDiv.style.color = "var(--success)";
+            diagLog(`Initial sync finalized (RX so far: ${serialRxBytes}B, packets: ${JSON.stringify(diagState.pktCounts)})`, textureInitialized ? 'diag-ok' : '');
+        }
+
+        let pendingWorkerMessages = [];
+
+        const repairQueue = new Set();
+        let repairTimer = null;
+        function queueRepair(seqs) {
+            if (!Array.isArray(seqs)) return;
+            for (const s of seqs) repairQueue.add(s);
+            if (repairTimer) return;
+            repairTimer = setTimeout(() => {
+                repairTimer = null;
+                if (!repairQueue.size || !serialMode || !serialWriter) { repairQueue.clear(); return; }
+                const msg = 'GAP:' + Array.from(repairQueue).join(',');
+                repairQueue.clear();
+                try {
+                    serialWriter.write(sbFrame(new TextEncoder().encode(msg)))
+                        .catch(e => diagLog('Repair send failed: ' + e.message, 'diag-bad'));
+                    diagLog('NACK sent: ' + msg, 'diag-dim');
+                } catch (e) { diagLog('Repair write error: ' + e.message, 'diag-bad'); }
+            }, 100);
+        }
+        videoWorker.onmessage = (e) => {
+            diagState.workerMsgs++;
+            if (e.data && e.data.repair) {
+                queueRepair(e.data.repair.seqs);
+            }
+            if (e.data && e.data.runs) {
+                diagState.runsDecoded += e.data.runs.length;
+                if (!serialGotVideo) { serialGotVideo = true; diagLog('First decoded video from board', 'diag-ok'); }
+            } else if (e.data && e.data.pixels) {
+                if (!serialGotVideo) { serialGotVideo = true; diagLog('First decoded video from board', 'diag-ok'); }
+            }
+            pendingWorkerMessages.push(e.data);
+        };
+
+        function disconnectAudioThrottle() {
+            if (appendInterval) {
+                clearInterval(appendInterval);
+                appendInterval = null;
+            }
+        }
+
+        function connectAudio() {
+            isAudioStopped = false;
+            audioStreamActive = false;
+
+            if (USE_BLOB_AUDIO) {
+
+                console.log('Initializing Blob Audio system (Firefox mode)');
+                blobAudioChunks = [];
+                blobPlaybackActive = true;
+                audioStreamActive = true;
+
+                disconnectAudioThrottle();
+                appendInterval = setInterval(processBlobAudioQueue, 100);
+                return;
+            }
+
+            if (!window.MediaSource || !MIME_CODEC) return console.log("MSE not supported");
+
+            if (mediaSource) {
+                try {
+                    if (mediaSource.readyState === 'open') {
+                        mediaSource.endOfStream();
+                    }
+                } catch (e) {  }
+            }
+
+            mediaSource = new MediaSource();
+            audioPlayer.src = URL.createObjectURL(mediaSource);
+
+            mediaSource.onsourceopen = () => {
+                try {
+
+                    sourceBuffer = mediaSource.addSourceBuffer(MIME_CODEC);
+                    sourceBuffer.mode = 'sequence';
+                    sourceBuffer.onupdateend = () => {
+
+                        if (audioPlayer.paused && !isAudioStopped && audioStreamActive) {
+                            const buffered = sourceBuffer.buffered;
+                            if (buffered.length > 0) {
+                                const bufferAhead = buffered.end(buffered.length - 1) - audioPlayer.currentTime;
+                                if (bufferAhead > MIN_BUFFER_TIME) {
+                                    audioPlayer.play().catch(e => console.log("Auto-play blocked:", e));
+                                }
+                            }
+                        }
+                    };
+
+                    disconnectAudioThrottle();
+                    appendInterval = setInterval(processAudioQueue, APPEND_THROTTLE_MS);
+                    audioStreamActive = true;
+                    console.log("Audio system initialized (MSE mode)");
+                } catch (e) {
+                    console.error("SourceBuffer creation failed", e);
+                }
+            };
+        }
+
+        let blobChunks = [];
+        let currentBlobPlayer = null;
+        let nextBlobPlayer = null;
+        let isPlayingBlob = false;
+        const BLOB_INITIAL_THRESHOLD = 48000;
+        const BLOB_NEXT_THRESHOLD = 32000;
+
+        function processBlobAudioQueue() {
+            if (!blobPlaybackActive || isAudioStopped) return;
+
+            while (audioQueue.length > 0) {
+                blobChunks.push(audioQueue.shift());
+            }
+
+            const totalSize = blobChunks.reduce((sum, chunk) => sum + chunk.byteLength, 0);
+
+            if (!isPlayingBlob && totalSize > BLOB_INITIAL_THRESHOLD) {
+                startBlobPlayback();
+            }
+
+            else if (isPlayingBlob && !nextBlobPlayer && totalSize > BLOB_NEXT_THRESHOLD) {
+                prepareNextBlobSegment();
+            }
+        }
+
+        function startBlobPlayback() {
+            if (blobChunks.length === 0) return;
+
+            const blob = new Blob(blobChunks, { type: 'audio/mpeg' });
+            blobChunks = [];
+
+            const url = URL.createObjectURL(blob);
+            currentBlobPlayer = new Audio(url);
+            currentBlobPlayer.volume = 1.0;
+            isPlayingBlob = true;
+
+            currentBlobPlayer.onended = () => {
+                console.log('Blob segment ended');
+                URL.revokeObjectURL(url);
+
+                if (nextBlobPlayer) {
+                    currentBlobPlayer = nextBlobPlayer;
+                    nextBlobPlayer = null;
+                    currentBlobPlayer.play().catch(e => console.log('Next segment play failed:', e));
+                } else {
+                    currentBlobPlayer = null;
+                    isPlayingBlob = false;
+
+                    if (blobChunks.length > 0 || audioQueue.length > 0) {
+                        processBlobAudioQueue();
+                    }
+                }
+            };
+
+            currentBlobPlayer.onerror = (e) => {
+                console.error('Blob error:', e);
+                URL.revokeObjectURL(url);
+                currentBlobPlayer = null;
+                isPlayingBlob = false;
+            };
+
+            currentBlobPlayer.play().catch(e => {
+                console.log('Blob play blocked:', e);
+                isPlayingBlob = false;
+            });
+            console.log(`Playing blob (${(blob.size / 1024).toFixed(1)}KB)`);
+        }
+
+        function prepareNextBlobSegment() {
+            if (blobChunks.length === 0) return;
+
+            const blob = new Blob(blobChunks, { type: 'audio/mpeg' });
+            blobChunks = [];
+
+            const url = URL.createObjectURL(blob);
+            nextBlobPlayer = new Audio(url);
+            nextBlobPlayer.volume = 1.0;
+
+            nextBlobPlayer.load();
+
+            nextBlobPlayer.onended = () => {
+                URL.revokeObjectURL(url);
+                if (nextBlobPlayer === currentBlobPlayer) {
+                    currentBlobPlayer = null;
+                    isPlayingBlob = false;
+                }
+                nextBlobPlayer = null;
+
+                if (blobChunks.length > 0 || audioQueue.length > 0) {
+                    processBlobAudioQueue();
+                }
+            };
+
+            console.log(`Pre-buffered next blob (${(blob.size / 1024).toFixed(1)}KB)`);
+        }
+
+        function processAudioQueue() {
+            if (!sourceBuffer || sourceBuffer.updating || isAudioStopped || !audioStreamActive) return;
+
+            const startTime = performance.now();
+            while (audioQueue.length > 0 && (performance.now() - startTime) < 10) {
+                try {
+                    if (sourceBuffer.updating) break;
+                    const audioData = audioQueue.shift();
+                    sourceBuffer.appendBuffer(audioData);
+                } catch (e) {
+
+                    if (e.name === 'QuotaExceededError') {
+                        if (sourceBuffer && !sourceBuffer.updating && audioPlayer.currentTime > 5) {
+                            try {
+                                sourceBuffer.remove(0, audioPlayer.currentTime - 2);
+                            } catch (err) {
+                                console.log("Buffer removal failed:", err);
+                            }
+                        }
+                    } else {
+                        console.log("Audio append error:", e);
+                        break;
+                    }
+                }
+            }
+        }
+
+        function handleAudioStop() {
+            console.log("Stopping audio playback");
+            isAudioStopped = true;
+            audioStreamActive = false;
+            blobPlaybackActive = false;
+
+            if (currentBlobPlayer) {
+                currentBlobPlayer.pause();
+                URL.revokeObjectURL(currentBlobPlayer.src);
+                currentBlobPlayer = null;
+            }
+            if (nextBlobPlayer) {
+                nextBlobPlayer.pause();
+                URL.revokeObjectURL(nextBlobPlayer.src);
+                nextBlobPlayer = null;
+            }
+            blobChunks = [];
+            isPlayingBlob = false;
+
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
+
+            audioQueue.length = 0;
+
+            if (sourceBuffer && !sourceBuffer.updating) {
+                try {
+                    sourceBuffer.abort();
+                } catch (e) { }
+            }
+            disconnectAudioThrottle();
+        }
+
+        function handleAudioPause() {
+            console.log("Pausing audio playback");
+            audioPlayer.pause();
+        }
+
+        function handleAudioResume() {
+            console.log("Resuming audio playback");
+            isAudioStopped = false;
+            audioStreamActive = true;
+
+            connectAudio();
+
+            setTimeout(() => {
+                audioPlayer.play().catch(e => console.log("Playback resume blocked:", e));
+            }, 100);
+        }
+
+        function handleAudioNextTrack() {
+            console.log("Next track");
+            isAudioStopped = false;
+            audioStreamActive = true;
+            audioQueue.length = 0;
+            audioPlayer.pause();
+            audioPlayer.currentTime = 0;
+            connectAudio();
+        }
+
+        function cleanupMP4Player() {
+            if (mp4VideoElement) {
+                mp4VideoElement.pause();
+                mp4VideoElement.src = '';
+                mp4VideoElement.remove();
+                mp4VideoElement = null;
+            }
+            if (mp4BlobUrl) {
+                URL.revokeObjectURL(mp4BlobUrl);
+                mp4BlobUrl = null;
+            }
+            const existing = document.getElementById('mp4Overlay');
+            if (existing) existing.remove();
+        }
+
+        function playMP4Blob() {
+            if (mp4Chunks.length === 0) {
+                console.error('No MP4 data received');
+                return;
+            }
+
+            cleanupMP4Player();
+
+            const blob = new Blob(mp4Chunks, { type: 'video/mp4' });
+            mp4Chunks = [];
+            mp4BlobUrl = URL.createObjectURL(blob);
+            console.log(`MP4 Blob created: ${(blob.size / 1024 / 1024).toFixed(1)}MB`);
+
+            const container = document.getElementById('frameContainer');
+            const cw = container.clientWidth;
+            const ch = container.clientHeight;
+            const scaleX = cw / frameWidth;
+            const scaleY = ch / frameHeight;
+
+            const pad = 4;
+            const vidLeft = (mp4WindowRect.x + pad) * scaleX;
+            const vidTop = (mp4WindowRect.y + pad) * scaleY;
+            const vidWidth = (mp4WindowRect.w - pad * 2) * scaleX;
+            const vidHeight = (mp4WindowRect.h - pad * 2) * scaleY;
+
+            const overlay = document.createElement('div');
+            overlay.id = 'mp4Overlay';
+            overlay.style.cssText = `
+                position: absolute;
+                left: ${vidLeft}px;
+                top: ${vidTop}px;
+                width: ${vidWidth}px;
+                height: ${vidHeight}px;
+                pointer-events: none;
+                z-index: 100;
+            `;
+
+            mp4VideoElement = document.createElement('video');
+            mp4VideoElement.src = mp4BlobUrl;
+            mp4VideoElement.style.cssText = `
+                position: absolute;
+                left: 0; top: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                background: black;
+                pointer-events: auto;
+            `;
+            mp4VideoElement.volume = 1.0;
+            mp4VideoElement.playsInline = true;
+
+            const controls = document.createElement('div');
+            controls.style.cssText = `
+                position: absolute;
+                bottom: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+                display: flex;
+                gap: 8px;
+                padding: 8px 16px;
+                background: rgba(0, 0, 0, 0.75);
+                border-radius: 8px;
+                pointer-events: auto;
+                z-index: 101;
+            `;
+
+            const btnStyle = `
+                border: none;
+                color: white;
+                font-size: 16px;
+                padding: 8px 18px;
+                border-radius: 6px;
+                cursor: pointer;
+                font-weight: bold;
+            `;
+
+            const playBtn = document.createElement('button');
+            playBtn.textContent = '▶ Play';
+            playBtn.style.cssText = btnStyle + 'background: #2196F3;';
+            playBtn.onclick = () => {
+                mp4VideoElement.play().catch(e => console.log('Play blocked:', e));
+            };
+
+            const pauseBtn = document.createElement('button');
+            pauseBtn.textContent = '⏸ Pause';
+            pauseBtn.style.cssText = btnStyle + 'background: #FF9800;';
+            pauseBtn.onclick = () => {
+                mp4VideoElement.pause();
+            };
+
+            const stopBtn = document.createElement('button');
+            stopBtn.textContent = '⏹ Stop';
+            stopBtn.style.cssText = btnStyle + 'background: #F44336;';
+            stopBtn.onclick = () => {
+                cleanupMP4Player();
+            };
+
+            controls.appendChild(playBtn);
+            controls.appendChild(pauseBtn);
+            controls.appendChild(stopBtn);
+
+            const progressRow = document.createElement('div');
+            progressRow.style.cssText = `
+                position: absolute;
+                bottom: 52px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 80%;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                padding: 4px 10px;
+                background: rgba(0, 0, 0, 0.7);
+                border-radius: 6px;
+                pointer-events: auto;
+                z-index: 101;
+            `;
+
+            const timeLabel = document.createElement('span');
+            timeLabel.style.cssText = 'color: white; font-size: 12px; font-family: monospace; min-width: 100px; text-align: center;';
+            timeLabel.textContent = '0:00 / 0:00';
+
+            const seekBar = document.createElement('div');
+            seekBar.style.cssText = 'flex:1; height:6px; background:#555; border-radius:3px; cursor:pointer; position:relative;';
+            const seekFill = document.createElement('div');
+            seekFill.style.cssText = 'height:100%; width:0%; background:#2196F3; border-radius:3px; transition:width 0.2s;';
+            seekBar.appendChild(seekFill);
+
+            seekBar.onclick = (ev) => {
+                if (!mp4VideoElement || !mp4VideoElement.duration) return;
+                const rect = seekBar.getBoundingClientRect();
+                const pct = (ev.clientX - rect.left) / rect.width;
+                mp4VideoElement.currentTime = pct * mp4VideoElement.duration;
+            };
+
+            const fmtTime = (s) => {
+                const m = Math.floor(s / 60);
+                const sec = Math.floor(s % 60);
+                return m + ':' + (sec < 10 ? '0' : '') + sec;
+            };
+
+            mp4VideoElement.ontimeupdate = () => {
+                const cur = mp4VideoElement.currentTime || 0;
+                const dur = mp4VideoElement.duration || 0;
+                if (dur > 0) {
+                    seekFill.style.width = ((cur / dur) * 100) + '%';
+                    timeLabel.textContent = fmtTime(cur) + ' / ' + fmtTime(dur);
+                }
+            };
+
+            mp4VideoElement.onplay = () => {
+                console.log('MP4 playback started');
+                const pEl = document.getElementById('mp4Progress');
+                if (pEl) pEl.remove();
+            };
+
+            mp4VideoElement.onerror = (e) => {
+                const err = mp4VideoElement.error;
+                console.error("Video element error:", err);
+                statusDiv.textContent = "Video Error: " + (err ? err.message : "Unknown");
+                statusDiv.style.color = 'var(--error)';
+            };
+
+            progressRow.appendChild(seekBar);
+            progressRow.appendChild(timeLabel);
+
+            overlay.appendChild(mp4VideoElement);
+            overlay.appendChild(progressRow);
+            overlay.appendChild(controls);
+
+            if (!container) {
+                console.error("frameContainer not found for overlay!");
+                document.body.appendChild(overlay);
+            } else {
+                container.appendChild(overlay);
+            }
+
+            mp4VideoElement.play().catch(e => {
+                console.log('Auto-play blocked, user must click Play:', e);
+            });
+
+            mp4VideoElement.onended = () => {
+                console.log('MP4 playback finished');
+                cleanupMP4Player();
+            };
+
+            const repositionOverlay = () => {
+                const cw = container.clientWidth;
+                const ch = container.clientHeight;
+                const sx = cw / frameWidth;
+                const sy = ch / frameHeight;
+                overlay.style.left = ((mp4WindowRect.x + pad) * sx) + 'px';
+                overlay.style.top = ((mp4WindowRect.y + pad) * sy) + 'px';
+                overlay.style.width = ((mp4WindowRect.w - pad * 2) * sx) + 'px';
+                overlay.style.height = ((mp4WindowRect.h - pad * 2) * sy) + 'px';
+            };
+            window.addEventListener('resize', repositionOverlay);
+            mp4VideoElement._resizeHandler = repositionOverlay;
+        }
+
+        let fpsInterval = setInterval(() => {
+            const now = performance.now();
+            fpsDisplay.textContent = `FPS: ${(frameCount / ((now - lastFpsTime) / 1000)).toFixed(1)}`;
+            frameCount = 0;
+            lastFpsTime = now;
+        }, 1000);
+
+        const SPECIAL_KEYS = {
+            "ArrowUp": "ArrowUp", "ArrowDown": "ArrowDown", "ArrowLeft": "ArrowLeft", "ArrowRight": "ArrowRight",
+            "Enter": "Enter", "Space": "Space", "Escape": "Esc", "Backspace": "Backspace", "Tab": "Tab",
+            "ShiftLeft": "Shift", "ShiftRight": "Shift", "ControlLeft": "Ctrl", "ControlRight": "Ctrl"
+        };
+
+        const SB_SYNC = 0xAA;
+        const SB_ESC = 0xAB;
+        const CRC16_TABLE = (() => {
+            const t = new Uint16Array(256);
+            for (let i = 0; i < 256; i++) {
+                let c = i << 8;
+                for (let b = 0; b < 8; b++) {
+                    c = (c & 0x8000) ? ((c << 1) ^ 0x1021) & 0xFFFF : (c << 1) & 0xFFFF;
+                }
+                t[i] = c;
+            }
+            return t;
+        })();
+        function crc16(bytes) {
+            let c = 0xFFFF;
+            for (let i = 0; i < bytes.length; i++) {
+                c = ((c << 8) ^ CRC16_TABLE[((c >> 8) ^ bytes[i]) & 0xFF]) & 0xFFFF;
+            }
+            return c;
+        }
+        function sbFrame(payload) {
+            let escapes = 0;
+            for (let i = 0; i < payload.length; i++) {
+                if (payload[i] === SB_SYNC || payload[i] === SB_ESC) escapes++;
+            }
+            const crc = crc16(payload);
+            const out = new Uint8Array(5 + payload.length + escapes);
+            let p = 0;
+            out[p++] = SB_SYNC;
+            out[p++] = payload.length & 0xFF;
+            out[p++] = (payload.length >> 8) & 0xFF;
+            out[p++] = crc & 0xFF;
+            out[p++] = (crc >> 8) & 0xFF;
+            for (let i = 0; i < payload.length; i++) {
+                const b = payload[i];
+                if (b === SB_SYNC) { out[p++] = SB_ESC; out[p++] = 0x01; }
+                else if (b === SB_ESC) { out[p++] = SB_ESC; out[p++] = 0x02; }
+                else out[p++] = b;
+            }
+            return out;
+        }
+
+        function sendInput(msg) {
+            if (serialMode && serialWriter) {
+                const enc = new TextEncoder();
+                const frame = sbFrame(enc.encode(msg));
+                serialWriter.write(frame).catch(e => diagLog("Serial write error: " + e.message, 'diag-bad'));
+            } else if (uiSocket && uiSocket.readyState === WebSocket.OPEN) {
+                uiSocket.send(msg);
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if ((!uiSocket && !serialMode) || e.repeat) return;
+            let k = SPECIAL_KEYS[e.code] || SPECIAL_KEYS[e.key] || (e.key.length === 1 ? e.key : null);
+
+            if (k) {
+
+                if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(k)) {
+                    e.preventDefault();
+                }
+
+                sendInput(k.length === 1 ? `keyb:char:${k}:DOWN` : `keyb:key:${k}:DOWN`);
+            }
+        });
+
+        window.addEventListener('keyup', (e) => {
+            if ((!uiSocket && !serialMode) || e.repeat) return;
+            let k = SPECIAL_KEYS[e.code] || SPECIAL_KEYS[e.key] || (e.key.length === 1 ? e.key : null);
+
+            if (k) {
+                sendInput(k.length === 1 ? `keyb:char:${k}:UP` : `keyb:key:${k}:UP`);
+            }
+        });
+
+        const frameEl = document.getElementById('frameContainer');
+        frameEl.onmousedown = (e) => sendMouse('down', e);
+        frameEl.onmouseup = (e) => sendMouse('up', e);
+        frameEl.onmousemove = (e) => { if (e.buttons === 1) sendMouse('move', e); };
+
+        frameEl.addEventListener('wheel', (e) => handleMouseWheel(e), { passive: false });
+
+        let lastMouseTime = 0;
+        function sendMouse(type, e) {
+            const now = performance.now();
+            if (type === 'move' && (now - lastMouseTime < MOUSE_THROTTLE_MS)) return;
+            if (type === 'move') lastMouseTime = now;
+
+            const r = canvas.getBoundingClientRect();
+
+            const x = Math.floor((e.clientX - r.left) * (frameWidth / r.width));
+            const y = Math.floor((e.clientY - r.top) * (frameHeight / r.height));
+            if (x >= 0 && x < frameWidth && y >= 0 && y < frameHeight) sendInput(`mouse:${type}:${x},${y}`);
+        }
+
+        function handleMouseWheel(e) {
+            e.preventDefault();
+
+            const now = performance.now();
+            if (now - lastWheelSendTime < WHEEL_THROTTLE_MS) return;
+            lastWheelSendTime = now;
+
+            const r = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - r.left) * (frameWidth / r.width));
+            const y = Math.floor((e.clientY - r.top) * (frameHeight / r.height));
+
+            let delta = 0;
+
+            if (e.deltaMode === 0) {
+
+                delta = Math.sign(e.deltaY) * -1;
+            } else if (e.deltaMode === 1) {
+
+                delta = Math.sign(e.deltaY) * -1;
+            } else {
+
+                delta = Math.sign(e.deltaY) * -3;
+            }
+
+            delta = Math.max(-3, Math.min(3, delta));
+
+            if (x >= 0 && x < frameWidth && y >= 0 && y < frameHeight) {
+
+                sendInput(`wheel:${x},${y},${delta}`);
+            }
+        }
+
+        fullScreenBtn.onclick = () => {
+            if (!document.fullscreenElement) frameEl.requestFullscreen();
+            else document.exitFullscreen();
+        };
+
+        document.addEventListener('fullscreenchange', () => {
+            document.body.classList.toggle('fullscreen-mode', !!document.fullscreenElement);
+        });
+
+        function handlePacketData(data, isBinary) {
+            if (isBinary) {
+                const view = new DataView(data);
+                const packetType = view.getUint8(0);
+                diagCountPacket(packetType, data.byteLength);
+
+                if (packetType === PACKET_TYPE_AUDIO) {
+                    if (isAudioStopped) { handleAudioResume(); }
+                    if (audioStreamActive) { audioQueue.push(data.slice(1)); }
+                } else if (packetType === PACKET_TYPE_MP4_VIDEO) {
+                    const chunk = data.slice(1);
+                    mp4Chunks.push(chunk);
+                    mp4ReceivedSize += chunk.byteLength;
+                    if (mp4VideoElement && mp4VideoElement._sb && !mp4VideoElement._sb.updating) {
+                        try { mp4VideoElement._sb.appendBuffer(chunk); if (mp4VideoElement.paused && mp4ReceivedSize > 512*1024) mp4VideoElement.play().catch(()=>{}); } catch(e) { mp4VideoElement._sb = null; }
+                    }
+                    const progressEl = document.getElementById('mp4Progress');
+                    if (progressEl && mp4ExpectedSize > 0) {
+                        const pct = Math.min(100, (mp4ReceivedSize / mp4ExpectedSize) * 100);
+                        const bar = progressEl.querySelector('.bar');
+                        const label = progressEl.querySelector('.label');
+                        if (bar) bar.style.width = pct + '%';
+                        if (label) label.textContent = `${(mp4ReceivedSize/1024/1024).toFixed(1)}MB / ${(mp4ExpectedSize/1024/1024).toFixed(1)}MB (${pct.toFixed(0)}%)`;
+                    }
+                } else if (packetType === PACKET_TYPE_VIDEO || packetType === PACKET_TYPE_RAW8 || packetType === PACKET_TYPE_JPEG_VIDEO) {
+                    if (!videoWorker) return;
+
+                    const bufferToTransfer = (packetType === PACKET_TYPE_JPEG_VIDEO) ? data : data.slice(1);
+                    videoWorker.postMessage({ buffer: bufferToTransfer, type: packetType }, [bufferToTransfer]);
+                } else {
+
+                }
+            } else {
+                const cmd = new TextDecoder().decode(data).trim();
+
+                statusDiv.textContent = "Board: " + cmd;
+                statusDiv.style.color = "#0f0";
+                diagLog("BOARD: " + cmd, cmd === 'HB' ? 'diag-dim' : '');
+                if (cmd.startsWith("fm:")) {
+                    dispatchFm(cmd);
+                } else if (cmd.startsWith("SYSLOG:")) {
+                    const p = cmd.substring(7).split(':');
+                    if (p.length >= 4) { const ok = p[p.length-1] === '1'; addSyslogEntry(p[0], p[1], p.slice(2, p.length-1).join(':'), ok); }
+                } else if (cmd.startsWith("SFX:")) { playSfx(cmd.substring(4)); }
+                else if (cmd === "AUDIO:STOP") { handleAudioStop(); }
+                else if (cmd === "AUDIO:PAUSE") { handleAudioPause(); }
+                else if (cmd === "AUDIO:RESUME") { handleAudioResume(); }
+                else if (cmd === "AUDIO:NEXT" || cmd === "AUDIO:NEXT_TRACK") { handleAudioNextTrack(); }
+                else if (cmd.startsWith("MP4:START:")) {
+                    const parts = cmd.substring(10).split(':');
+                    mp4ExpectedSize = parseInt(parts[0]) || 0;
+                    if (parts.length >= 5) { mp4WindowRect = { x:parseInt(parts[1])||0, y:parseInt(parts[2])||0, w:parseInt(parts[3])||320, h:parseInt(parts[4])||240 }; }
+                    mp4ReceivedSize = 0; mp4Chunks = []; cleanupMP4Player();
+                }
+            }
+        }
+
+        async function connectSerial() {
+            if (serialPort) {
+                disconnectSerial();
+                return;
+            }
+            try {
+                serialPort = await navigator.serial.requestPort();
+                await serialPort.open({ baudRate: 2000000 });
+
+                await serialPort.setSignals({ dataTerminalReady: true, requestToSend: false });
+
+                serialReader = serialPort.readable.getReader();
+                serialWriter = serialPort.writable.getWriter();
+
+                serialMode = true;
+                serialButton.textContent = "Disconnect Serial";
+                serialButton.className = "disconnect";
+                statusDiv.textContent = "Serial Connected (Syncing...)";
+                statusDiv.style.color = "var(--success)";
+                fullScreenBtn.disabled = false;
+                diagLog('Serial port opened, sending INIT...', 'diag-ok');
+
+                initAudioContext();
+                decodeShotgunSFX();
+                connectAudio();
+
+                isInitialSync = true;
+                textureInitialized = false;
+                syncTimeoutHandle = setTimeout(finalizeInitialSync, 2000);
+
+                isInitialSync = true;
+                textureInitialized = false;
+                syncTimeoutHandle = setTimeout(finalizeInitialSync, 2000);
+
+                const sendInit = () => {
+                    const msg = new TextEncoder().encode("CLIENT:INIT");
+                    return serialWriter.write(sbFrame(msg));
+                };
+                let initRetries = 0;
+                serialInitTimer = setInterval(async () => {
+                    if (!serialWriter || !serialMode) { clearInterval(serialInitTimer); serialInitTimer = null; return; }
+                    if (serialCompleteSync) { clearInterval(serialInitTimer); serialInitTimer = null; return; }
+                    if (initRetries++ > 30) { clearInterval(serialInitTimer); serialInitTimer = null; diagLog('INIT retries exhausted without complete sync', 'diag-bad'); return; }
+                    diagLog(`Re-sending CLIENT:INIT (retry ${initRetries})`, 'diag-dim');
+                    try { await sendInit(); } catch (e) { diagLog("INIT retry failed: " + e.message, 'diag-bad'); }
+                }, 3000);
+
+                await sendInit();
+
+                try { videoWorker.postMessage({ reset: true }); } catch (e) {}
+
+                serialReadLoop();
+            } catch (e) {
+                console.error("Serial connect error:", e);
+                statusDiv.textContent = "Serial Failed: " + e.message;
+                statusDiv.style.color = "var(--error)";
+                serialPort = null;
+            }
+        }
+
+        function disconnectSerial() {
+            serialMode = false;
+            if (serialInitTimer) { clearInterval(serialInitTimer); serialInitTimer = null; }
+            serialGotVideo = false;
+            serialCompleteSync = false;
+            diagLog('Serial disconnected', 'diag-bad');
+            if (serialReader) { serialReader.cancel().catch(()=>{}); serialReader = null; }
+            if (serialWriter) { serialWriter.releaseLock(); serialWriter = null; }
+            if (serialPort) { serialPort.close().catch(()=>{}); serialPort = null; }
+            serialButton.textContent = "Serial";
+            serialButton.className = "connect";
+            statusDiv.textContent = "Disconnected";
+            statusDiv.style.color = "#888";
+            fullScreenBtn.disabled = true;
+            textureInitialized = false;
+            disconnectAudioThrottle();
+            handleAudioStop();
+        }
+
+        async function serialReadLoop() {
+            let rxBuf = new Uint8Array(0);
+            diagLog('Serial read loop started (framing v2: len+crc+escape)');
+
+            while (serialMode && serialPort) {
+                try {
+                    if (!serialReader) {
+                        serialReader = serialPort.readable.getReader();
+                    }
+                    const { value, done } = await serialReader.read();
+                    if (done) {
+                        diagLog('Serial reader done, reacquiring', 'diag-dim');
+                        try { serialReader.releaseLock(); } catch(e) {}
+                        serialReader = null;
+                        await new Promise(r => setTimeout(r, 200));
+                        continue;
+                    }
+                    if (!value || value.length === 0) continue;
+
+                    serialRxBytes += value.length;
+                    diagState.chunks++;
+                    diagState.bpsWindow.push({ t: performance.now(), b: value.length });
+                    rxBuf = concatUint8(rxBuf, value);
+
+                    while (rxBuf.length >= 5) {
+                        if (rxBuf[0] !== SB_SYNC) {
+                            let syncIdx = -1;
+                            for (let i = 1; i < rxBuf.length; i++) {
+                                if (rxBuf[i] === SB_SYNC) { syncIdx = i; break; }
+                            }
+                            if (syncIdx < 0) { rxBuf = new Uint8Array(0); break; }
+                            rxBuf = rxBuf.slice(syncIdx);
+                            continue;
+                        }
+
+                        const len = rxBuf[1] | (rxBuf[2] << 8);
+                        const wantCrc = rxBuf[3] | (rxBuf[4] << 8);
+                        if (len === 0) {
+                            rxBuf = rxBuf.slice(1);
+                            continue;
+                        }
+                        if (len > 65535) { rxBuf = rxBuf.slice(1); continue; }
+
+                        let pos = 5, decoded = new Uint8Array(len), dLen = 0, badFrame = false;
+                        while (dLen < len) {
+                            if (pos >= rxBuf.length) { badFrame = 'truncated'; break; }
+                            const b = rxBuf[pos++];
+                            if (b === SB_ESC) {
+                                if (pos >= rxBuf.length) { badFrame = 'truncated'; break; }
+                                const e = rxBuf[pos++];
+                                if (e === 0x01) decoded[dLen++] = SB_SYNC;
+                                else if (e === 0x02) decoded[dLen++] = SB_ESC;
+                                else { badFrame = 'escape'; break; }
+                            } else if (b === SB_SYNC) {
+                                badFrame = 'delimiter'; break;
+                            } else {
+                                decoded[dLen++] = b;
+                            }
+                        }
+                        if (badFrame === 'truncated') {
+
+                            if (rxBuf.length >= 5 + 2 * len) {
+                                diagState.crcErrors = (diagState.crcErrors || 0) + 1;
+                                diagLog('Impossible frame length, resyncing', 'diag-bad');
+                                rxBuf = rxBuf.slice(1);
+                                continue;
+                            }
+                            break;
+                        }
+                        if (badFrame) {
+                            diagState.crcErrors = (diagState.crcErrors || 0) + 1;
+                            diagLog('Frame error (' + badFrame + '), resyncing', 'diag-bad');
+                            rxBuf = rxBuf.slice(1);
+                            continue;
+                        }
+
+                        rxBuf = rxBuf.slice(pos);
+                        if (crc16(decoded) !== wantCrc) {
+                            diagState.crcErrors = (diagState.crcErrors || 0) + 1;
+                            diagLog('CRC mismatch, frame dropped (' + len + 'B)', 'diag-bad');
+                            continue;
+                        }
+
+                        const payload = decoded;
+                        const packetType = payload[0];
+                        if (packetType === 0x02 && payload.length >= 5 &&
+                            payload[2] === 1 && payload[3] === 1 && payload[4] >= 20) {
+                            serialCompleteSync = true;
+                            diagLog('Complete full-sync received (' + payload[4] + ' stripes)', 'diag-ok');
+                        }
+                        const isBinary = (packetType === 0x01 || packetType === 0x02 ||
+                                          packetType === 0x03 || packetType === 0x04 || packetType === 0x07);
+                        try {
+                            handlePacketData(payload.buffer, isBinary);
+                        } catch (err) {
+                            diagState.handlerErrors++;
+                            diagLog('HANDLER ERROR: ' + err.message, 'diag-bad');
+                        }
+                    }
+                } catch (e) {
+                    diagLog('Read error: ' + e.message, 'diag-bad');
+                    if (serialReader) { try { serialReader.releaseLock(); } catch(ex) {} serialReader = null; }
+                    await new Promise(r => setTimeout(r, 500));
+                }
+            }
+            diagLog('Serial read loop exited', 'diag-bad');
+        }
+
+        function concatUint8(a, b) {
+            const result = new Uint8Array(a.length + b.length);
+            result.set(a, 0); result.set(b, a.length);
+            return result;
+        }
+
+        function b64FromStr(str) {
+            const bytes = new TextEncoder().encode(str);
+            let bin = '';
+            for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+            return btoa(bin);
+        }
+
+        function strFromB64(b64) {
+            const bin = atob(b64);
+            const bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            return new TextDecoder('utf-8').decode(bytes);
+        }
+
+        function b64FromBytes(bytes) {
+            let bin = '';
+            for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+            return btoa(bin);
+        }
+
+        function bytesFromB64(b64) {
+            const bin = atob(b64);
+            const bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            return bytes;
+        }
+
+        function wdAbs(segs) {
+            return '/' + segs.join('/');
+        }
+
+        const wdClientId = 'c' + Math.random().toString(36).substring(2, 10);
+
+        const WD_DB_NAME = 'ProjectBlueWebDrive';
+        const WD_DB_STORE = 'handles';
+        const WD_DB_KEY = 'rootDir';
+
+        function openWdDb() {
+            return new Promise((resolve, reject) => {
+                const req = indexedDB.open(WD_DB_NAME, 1);
+                req.onupgradeneeded = () => req.result.createObjectStore(WD_DB_STORE);
+                req.onsuccess = () => resolve(req.result);
+                req.onerror = () => reject(req.error);
+            });
+        }
+
+        async function saveDirHandle(handle) {
+            try {
+                const db = await openWdDb();
+                const tx = db.transaction(WD_DB_STORE, 'readwrite');
+                tx.objectStore(WD_DB_STORE).put(handle, WD_DB_KEY);
+            } catch (e) {  }
+        }
+
+        async function loadDirHandle() {
+            try {
+                const db = await openWdDb();
+                const tx = db.transaction(WD_DB_STORE, 'readonly');
+                const req = tx.objectStore(WD_DB_STORE).get(WD_DB_KEY);
+                return new Promise((resolve) => {
+                    req.onsuccess = () => resolve(req.result || null);
+                    req.onerror = () => resolve(null);
+                });
+            } catch (e) { return null; }
+        }
+
+        let rootDirHandle = null;
+        let wdPath = [];
+        let lastViewedSize = 0;
+        let uploadWritable = null;
+        let logPos = 0;
+
+        async function getDirHandle(create = false) {
+            if (!rootDirHandle) throw new Error("No Network folder selected");
+            let handle = rootDirHandle;
+            for (const segment of wdPath) {
+                handle = await handle.getDirectoryHandle(segment, { create });
+            }
+            return handle;
+        }
+
+        async function wdList() {
+            if (!rootDirHandle) throw new Error("No folder selected");
+            const dir = await getDirHandle();
+            const items = [];
+            for await (const entry of dir.values()) {
+                const info = { name: entry.name, dir: entry.kind === 'directory' };
+                if (!info.dir) {
+                    const file = await entry.getFile();
+                    info.size = file.size;
+                } else {
+                    info.size = 0;
+                }
+                items.push(info);
+            }
+            items.sort((a, b) => (a.dir === b.dir) ? a.name.localeCompare(b.name) : (a.dir ? -1 : 1));
+            return { items, path: wdPath.length ? wdPath[wdPath.length - 1] : "/" };
+        }
+
+        async function wdReadBytes(name, maxBytes) {
+            if (!rootDirHandle) throw new Error("No folder selected");
+            const dir = await getDirHandle();
+            const fileHandle = await dir.getFileHandle(name);
+            const file = await fileHandle.getFile();
+            const bytes = new Uint8Array(await file.slice(0, maxBytes).arrayBuffer());
+            return { bytes, size: file.size };
+        }
+
+        async function wdWrite(name, content) {
+            if (!rootDirHandle) throw new Error("No folder selected");
+            const dir = await getDirHandle();
+            const fileHandle = await dir.getFileHandle(name, { create: true });
+            const writable = await fileHandle.createWritable();
+            await writable.write(content);
+            await writable.close();
+        }
+
+        async function wdMkdir(name) {
+            if (!rootDirHandle) throw new Error("No folder selected");
+            const dir = await getDirHandle();
+            await dir.getDirectoryHandle(name, { create: true });
+        }
+
+        async function wdRm(name) {
+            if (!rootDirHandle) throw new Error("No folder selected");
+            const dir = await getDirHandle();
+            await dir.removeEntry(name, { recursive: true });
+        }
+
+        async function wdRename(oldn, newn) {
+            if (!rootDirHandle) throw new Error("No folder selected");
+            const dir = await getDirHandle();
+            const fileHandle = await dir.getFileHandle(oldn);
+            await fileHandle.move(newn);
+        }
+
+        async function getFileAbs(absPath, create) {
+            const segs = absPath.split('/').filter(s => s.length);
+            if (!segs.length) throw new Error('bad path: ' + absPath);
+            let dir = rootDirHandle;
+            for (let i = 0; i < segs.length - 1; i++)
+                dir = await dir.getDirectoryHandle(segs[i], { create });
+            return dir.getFileHandle(segs[segs.length - 1], { create });
+        }
+
+        async function wdReadAbsBytes(absPath, maxBytes) {
+            if (!rootDirHandle) throw new Error("No folder selected");
+            const fh = await getFileAbs(absPath, false);
+            const file = await fh.getFile();
+            const bytes = new Uint8Array(await file.slice(0, maxBytes).arrayBuffer());
+            return { bytes, size: file.size };
+        }
+
+        async function wdRmAbs(absPath) {
+            if (!rootDirHandle) throw new Error("No folder selected");
+            const segs = absPath.split('/').filter(s => s.length);
+            if (!segs.length) throw new Error('bad path: ' + absPath);
+            let dir = rootDirHandle;
+            for (let i = 0; i < segs.length - 1; i++)
+                dir = await dir.getDirectoryHandle(segs[i], { create: false });
+            await dir.removeEntry(segs[segs.length - 1]);
+        }
+
+        async function wdCopyAbs(srcAbs, dstAbs) {
+            if (!rootDirHandle) throw new Error("No folder selected");
+            const fh = await getFileAbs(srcAbs, false);
+            const file = await fh.getFile();
+            const bytes = new Uint8Array(await file.arrayBuffer());
+            const dfh = await getFileAbs(dstAbs, true);
+            const w = await dfh.createWritable();
+            await w.write(bytes);
+            await w.close();
+        }
+
+        async function pushListing() {
+
+            if (!uiSocket || uiSocket.readyState !== WebSocket.OPEN) {
+                try {
+                    sendInput('fl:begin:' + wdClientId);
+                    sendInput('fl:err:' + b64FromStr('webdrive: browser socket not connected'));
+                } catch (e) {  }
+                return;
+            }
+            if (!rootDirHandle) {
+                sendInput('fl:begin:' + wdClientId);
+                sendInput('fl:err:' + b64FromStr('webdrive: no folder shared (click WebDrVFolder)'));
+                return;
+            }
+            let data;
+            try {
+                data = await wdList();
+            } catch (err) {
+                sendInput('fl:begin:' + wdClientId);
+                sendInput('fl:path:' + b64FromStr(wdAbs(wdPath)));
+                sendInput('fl:item:1:0:' + b64FromStr('..'));
+                sendInput('fl:err:' + b64FromStr('webdrive: ' + err.message));
+                return;
+            }
+            sendInput('fl:begin:' + wdClientId);
+            sendInput('fl:path:' + b64FromStr(wdAbs(wdPath)));
+            for (const it of data.items) {
+                sendInput(`fl:item:${it.dir ? '1' : '0'}:${it.size}:${b64FromStr(it.name)}`);
+            }
+            sendInput('fl:status:' + b64FromStr(`${data.items.length} item(s)`));
+        }
+
+        let fmChain = Promise.resolve();
+        function dispatchFm(cmd) {
+            fmChain = fmChain.then(() => handleFm(cmd)).catch(err => {
+                console.warn('fm handler error:', err);
+            });
+        }
+
+        async function handleFm(cmd) {
+            const parts = cmd.split(':');
+            const verb = parts[1];
+            try {
+                switch (verb) {
+                    case 'root':
+                        wdPath = [];
+                        await pushListing();
+                        break;
+                    case 'up':
+                        wdPath.pop();
+                        await pushListing();
+                        break;
+                    case 'list':
+                        await pushListing();
+                        break;
+                    case 'open':
+                        wdPath.push(strFromB64(parts[2]));
+                        await pushListing();
+                        break;
+                    case 'dl': {
+                        const p = strFromB64(parts[2]);
+                        const fh = await getFileAbs(p, false);
+                        const file = await fh.getFile();
+                        const CH = 3072;
+                        for (let off = 0; off < file.size; off += CH) {
+                            const bytes = new Uint8Array(await file.slice(off, off + CH).arrayBuffer());
+                            sendInput('fl:content:' + b64FromBytes(bytes));
+                            await new Promise(r => setTimeout(r, 10));
+                        }
+                        sendInput('fl:dlend');
+                        break;
+                    }
+                    case 'uwrite': {
+                        const name = strFromB64(parts[2]);
+                        const dir = await getDirHandle(true);
+                        const fh = await dir.getFileHandle(name, { create: true });
+                        uploadWritable = await fh.createWritable();
+                        logPos = 0;
+                        break;
+                    }
+                    case 'ulog': {
+                        const name = strFromB64(parts[2]);
+                        try {
+                            if (!rootDirHandle) throw new Error("No Network folder selected - click Share a folder");
+                            const fh = await rootDirHandle.getFileHandle(name, { create: true });
+                            const existing = await fh.getFile();
+                            logPos = existing.size;
+                            uploadWritable = (logPos > 0)
+                                ? await fh.createWritable({ keepExistingData: true })
+                                : await fh.createWritable();
+                            sendInput('fl:status:' + b64FromStr('log: opening ' + name + ' (append)'));
+                        } catch (err) {
+                            sendInput('fl:err:' + b64FromStr('log: ' + err.message));
+                            sendInput('fl:logerr:' + b64FromStr(err.message));
+                            break;
+                        }
+                        break;
+                    }
+                    case 'uchunk':
+                        if (uploadWritable) {
+                            const bytes = bytesFromB64(parts[2]);
+                            try {
+                                await uploadWritable.write({ type: 'write', data: bytes, position: logPos });
+                                logPos += bytes.length;
+                            } catch (err) {
+                                uploadWritable = null;
+                                sendInput('fl:logerr:' + b64FromStr(err.message));
+                            }
+                        }
+                        break;
+                    case 'uend':
+                        if (uploadWritable) {
+                            try { await uploadWritable.close(); } catch (err) {  }
+                            uploadWritable = null;
+                            await pushListing();
+                            sendInput('fl:status:' + b64FromStr('log: saved ' + logPos + ' bytes'));
+                        } else {
+                            await pushListing();
+                            sendInput('fl:err:' + b64FromStr('upload failed: Network folder not selected or writable'));
+                        }
+                        break;
+                    case 'cp': {
+                        await wdCopyAbs(strFromB64(parts[2]), strFromB64(parts[3]));
+                        await pushListing();
+                        sendInput('fl:status:' + b64FromStr('copied'));
+                        break;
+                    }
+                    case 'mv': {
+                        await wdCopyAbs(strFromB64(parts[2]), strFromB64(parts[3]));
+                        await wdRmAbs(strFromB64(parts[2]));
+                        await pushListing();
+                        sendInput('fl:status:' + b64FromStr('moved'));
+                        break;
+                    }
+                    case 'write': {
+                        const name = strFromB64(parts[2]);
+                        await wdWrite(name, bytesFromB64(parts[3]));
+                        await pushListing();
+                        sendInput('fl:status:' + b64FromStr('saved ' + name));
+                        break;
+                    }
+                    case 'view': {
+                        const name = strFromB64(parts[2]);
+                        const { bytes, size } = await wdReadBytes(name, 3072);
+                        lastViewedSize = size;
+                        sendInput('fl:content:' + b64FromBytes(bytes));
+                        break;
+                    }
+                    case 'wview': {
+                        const name = strFromB64(parts[2]);
+                        const { bytes, size } = await wdReadBytes(name, 3072);
+                        if (size > 3072) {
+                            sendInput('fl:err:' + b64FromStr(
+                                'file too large for Network drive (max 3KB): ' + size + ' bytes'));
+                        } else {
+                            sendInput('fl:dcontent:' + b64FromBytes(bytes));
+                        }
+                        break;
+                    }
+                    case 'wsave': {
+                        const name = strFromB64(parts[2]);
+                        await wdWrite(name, bytesFromB64(parts[3]));
+                        sendInput('fl:status:' + b64FromStr('saved ' + name));
+                        await pushListing();
+                        break;
+                    }
+                    case 'save': {
+                        const name = strFromB64(parts[2]);
+                        if (lastViewedSize > 3072) {
+                            sendInput('fl:err:' + b64FromStr(
+                                'file too large for editor (' + lastViewedSize + ' bytes); save refused'));
+                            break;
+                        }
+                        await wdWrite(name, bytesFromB64(parts[3]));
+                        sendInput('fl:status:' + b64FromStr('saved ' + name));
+                        await pushListing();
+                        break;
+                    }
+                    case 'del': {
+                        const p = strFromB64(parts[2]);
+                        if (p.startsWith('/')) await wdRmAbs(p);
+                        else await wdRm(p);
+                        await pushListing();
+                        break;
+                    }
+                    case 'ren':
+                        await wdRename(strFromB64(parts[2]), strFromB64(parts[3]));
+                        await pushListing();
+                        break;
+                    case 'newdir':
+                        await wdMkdir(strFromB64(parts[2]));
+                        await pushListing();
+                        break;
+                    case 'newfile':
+                        await wdWrite(strFromB64(parts[2]), '');
+                        await pushListing();
+                        break;
+                }
+            } catch (err) {
+                sendInput('fl:err:' + b64FromStr(err.message));
+            }
+        }
+
+        const webdrvFolderButton = document.getElementById('webdrvFolderButton');
+        webdrvFolderButton.onclick = async () => {
+            try {
+                rootDirHandle = await window.showDirectoryPicker({ mode: 'readwrite' });
+                const perm = await rootDirHandle.queryPermission({ mode: 'readwrite' });
+                if (perm !== 'granted') {
+                    const granted = await rootDirHandle.requestPermission({ mode: 'readwrite' });
+                    if (granted !== 'granted') throw new Error('write access denied for shared folder');
+                }
+
+                await saveDirHandle(rootDirHandle);
+                statusDiv.textContent = `Sharing: ${rootDirHandle.name} (read/write)`;
+                statusDiv.style.color = 'var(--success)';
+                wdPath = [];
+                await pushListing();
+            } catch (err) {
+                if (err.name !== 'AbortError') {
+                    statusDiv.textContent = `Error: ${err.message}`;
+                    statusDiv.style.color = 'var(--error)';
+                }
+            }
+        };
+
+        (async () => {
+            try {
+                const saved = await loadDirHandle();
+                if (saved) {
+                    const perm = await saved.queryPermission({ mode: 'readwrite' });
+                    if (perm === 'granted') {
+                        rootDirHandle = saved;
+                        statusDiv.textContent = `Sharing: ${saved.name} (read/write)`;
+                        statusDiv.style.color = 'var(--success)';
+                    } else if (perm === 'prompt') {
+                        const granted = await saved.requestPermission({ mode: 'readwrite' });
+                        if (granted === 'granted') {
+                            rootDirHandle = saved;
+                            statusDiv.textContent = `Sharing: ${saved.name} (read/write)`;
+                            statusDiv.style.color = 'var(--success)';
+                        }
+                    }
+                }
+            } catch (e) {  }
+        })();
+
+        serialButton.onclick = () => { connectSerial(); };
+
+        const syslogOverlay = document.getElementById('syslogOverlay');
+        const syslogList = document.getElementById('syslogList');
+        const syslogClose = document.getElementById('syslogClose');
+        const syslogButton = document.getElementById('syslogButton');
+
+        function addSyslogEntry(timeMs, app, op, ok) {
+            const d = document.createElement('div');
+            d.className = 'syslog-entry';
+            const t = new Date(parseInt(timeMs));
+            const ts = t.toLocaleTimeString('en-GB', { hour12: false });
+            d.innerHTML = `<span class="syslog-time">${ts}</span>`
+                + `<span class="syslog-app">${app}</span>`
+                + `<span class="syslog-op">${op}</span>`
+                + `<span class="syslog-status ${ok ? 'syslog-ok' : 'syslog-fail'}">${ok ? '\u2713' : '\u2717'}</span>`;
+            syslogList.appendChild(d);
+            syslogList.scrollTop = syslogList.scrollHeight;
+        }
+
+        syslogButton.onclick = () => {
+            syslogList.innerHTML = '';
+            if (uiSocket && uiSocket.readyState === 1) uiSocket.send('SYSLOG');
+            else if (serialMode && serialWriter) { const m = new TextEncoder().encode('SYSLOG'); serialWriter.write(sbFrame(m)); }
+            syslogOverlay.classList.add('open');
+        };
+        syslogClose.onclick = () => { syslogOverlay.classList.remove('open'); };
+        syslogOverlay.onclick = (e) => { if (e.target === syslogOverlay) syslogOverlay.classList.remove('open'); };
+
+        const _origOnMessage = null;
+
+    </script>
+</body>
+
+</html>
