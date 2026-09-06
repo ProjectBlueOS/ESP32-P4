@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BlueScript Programming Guide</title>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;600;700;900&display=swap');
+
+    :root {
+        --bg: #0a0e17;
+        --surface: #111827;
+        --surface2: #1a2236;
+        --border: #1e2d4a;
+        --text: #e2e8f0;
+        --text-dim: #8892a8;
+        --accent: #3b82f6;
+        --accent2: #06b6d4;
+        --green: #22c55e;
+        --red: #ef4444;
+        --orange: #f59e0b;
+        --purple: #a855f7;
+        --pink: #ec4899;
+        --code-bg: #0d1321;
+        --code-border: #1e2d4a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+        font-family: 'Inter', -apple-system, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        line-height: 1.7;
+        padding: 0;
+    }
+
+    .hero {
+        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+        border-bottom: 1px solid var(--border);
+        padding: 80px 40px;
+        text-align: center;
+    }
+
+    .hero h1 {
+        font-size: 3.2em;
+        font-weight: 900;
+        letter-spacing: -2px;
+        background: linear-gradient(135deg, #60a5fa, #a78bfa, #38bdf8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 12px;
+    }
+
+    .hero .subtitle {
+        font-size: 1.2em;
+        color: var(--text-dim);
+        font-weight: 300;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .hero .version {
+        display: inline-block;
+        margin-top: 20px;
+        padding: 6px 18px;
+        border: 1px solid var(--accent);
+        border-radius: 20px;
+        font-size: 0.85em;
+        color: var(--accent);
+        font-family: 'JetBrains Mono', monospace;
+    }
+
+    .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 40px 24px;
+    }
+
+    nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100vh;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+        padding: 20px 0;
+        z-index: 100;
+        display: none;
+    }
+
+    @media (min-width: 1400px) {
+        nav { display: block; }
+        .main-content { margin-left: 280px; }
+    }
+
+    nav .nav-title {
+        padding: 10px 24px 20px;
+        font-weight: 700;
+        font-size: 1.1em;
+        color: var(--accent);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    nav a {
+        display: block;
+        padding: 8px 24px;
+        color: var(--text-dim);
+        text-decoration: none;
+        font-size: 0.85em;
+        transition: all 0.2s;
+        border-left: 3px solid transparent;
+    }
+
+    nav a:hover, nav a.active {
+        color: var(--text);
+        background: rgba(59, 130, 246, 0.08);
+        border-left-color: var(--accent);
+    }
+
+    nav a.section-link {
+        font-weight: 600;
+        color: var(--text);
+        margin-top: 12px;
+        font-size: 0.8em;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    h2 {
+        font-size: 2em;
+        font-weight: 700;
+        margin: 60px 0 24px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid var(--border);
+        color: var(--text);
+        letter-spacing: -0.5px;
+    }
+
+    h3 {
+        font-size: 1.4em;
+        font-weight: 600;
+        margin: 40px 0 16px;
+        color: var(--accent2);
+    }
+
+    h4 {
+        font-size: 1.1em;
+        font-weight: 600;
+        margin: 28px 0 12px;
+        color: var(--accent);
+    }
+
+    p { margin-bottom: 16px; color: var(--text-dim); }
+
+    code {
+        font-family: 'JetBrains Mono', monospace;
+        background: var(--code-bg);
+        border: 1px solid var(--code-border);
+        padding: 2px 7px;
+        border-radius: 4px;
+        font-size: 0.88em;
+        color: #e879f9;
+    }
+
+    pre {
+        background: var(--code-bg);
+        border: 1px solid var(--code-border);
+        border-radius: 8px;
+        padding: 20px 24px;
+        overflow-x: auto;
+        margin: 16px 0 24px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.85em;
+        line-height: 1.8;
+        color: #c9d1d9;
+    }
+
+    pre code {
+        background: none;
+        border: none;
+        padding: 0;
+        color: inherit;
+    }
+
+    .cmd-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0 24px;
+        font-size: 0.9em;
+    }
+
+    .cmd-table th {
+        background: var(--surface2);
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 600;
+        color: var(--accent);
+        border: 1px solid var(--border);
+        font-size: 0.85em;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+    }
+
+    .cmd-table td {
+        padding: 10px 16px;
+        border: 1px solid var(--border);
+        vertical-align: top;
+    }
+
+    .cmd-table tr:nth-child(even) { background: rgba(255,255,255,0.015); }
+    .cmd-table tr:hover { background: rgba(59, 130, 246, 0.05); }
+
+    .cmd-table td:first-child {
+        font-family: 'JetBrains Mono', monospace;
+        color: #facc15;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .cmd-table td:nth-child(2) {
+        font-family: 'JetBrains Mono', monospace;
+        color: var(--text-dim);
+        font-size: 0.9em;
+    }
+
+    .info-box {
+        background: rgba(59, 130, 246, 0.08);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin: 16px 0 24px;
+        font-size: 0.9em;
+    }
+
+    .info-box strong { color: var(--accent); }
+
+    .warn-box {
+        background: rgba(245, 158, 11, 0.08);
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin: 16px 0 24px;
+        font-size: 0.9em;
+    }
+
+    .warn-box strong { color: var(--orange); }
+
+    .keyword { color: #f59e0b; }
+    .string { color: #34d399; }
+    .comment { color: #6b7280; font-style: italic; }
+    .number { color: #f472b6; }
+    .func { color: #60a5fa; }
+    .var { color: #c084fc; }
+    .label { color: #fb923c; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 16px 0 24px; }
+    .grid-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 20px;
+    }
+    .grid-card h4 { margin-top: 0; color: var(--accent2); }
+    .grid-card p { font-size: 0.9em; margin-bottom: 0; }
+
+    .color-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin: 16px 0 24px; }
+    .color-swatch {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.8em;
+    }
+    .color-swatch .swatch {
+        width: 24px;
+        height: 24px;
+        border-radius: 4px;
+        border: 1px solid rgba(255,255,255,0.1);
+        flex-shrink: 0;
+    }
+
+    ul, ol { margin: 12px 0 20px 24px; color: var(--text-dim); }
+    li { margin-bottom: 6px; }
+
+    .badge {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 0.75em;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        vertical-align: middle;
+        margin-left: 8px;
+    }
+    .badge-new { background: rgba(34, 197, 94, 0.15); color: var(--green); border: 1px solid rgba(34, 197, 94, 0.3); }
+    .badge-core { background: rgba(59, 130, 246, 0.15); color: var(--accent); border: 1px solid rgba(59, 130, 246, 0.3); }
+
+    footer {
+        text-align: center;
+        padding: 40px;
+        border-top: 1px solid var(--border);
+        color: var(--text-dim);
+        font-size: 0.85em;
+    }
+</style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>BlueScript</h1>
+    <div class="subtitle">Programming Guide</div>
+    <div class="version">v1.0 &mdash; ESP32-P4 &mdash; Project Blue</div>
+</div>
+
+<nav>
+    <div class="nav-title">Contents</div>
+    <a class="section-link" href="#overview">Overview</a>
+    <a href="#quickstart">Quick Start</a>
+    <a href="#structure">Script Structure</a>
+    <a href="#variables">Variables &amp; Types</a>
+    <a href="#expressions">Expressions</a>
+    <a href="#flow-control">Flow Control</a>
+    <a href="#events">Event Handlers</a>
+    <a class="section-link" href="#graphics">Graphics</a>
+    <a href="#2d-drawing">2D Drawing</a>
+    <a href="#3d-graphics">3D Graphics</a>
+    <a href="#sprites">Sprites</a>
+    <a href="#text-rendering">Text Rendering</a>
+    <a class="section-link" href="#system">System</a>
+    <a href="#system-commands">System Commands</a>
+    <a href="#network">Network</a>
+    <a href="#io">I/O &amp; Files</a>
+    <a href="#audio">Audio</a>
+    <a href="#peripherals">Peripherals</a>
+    <a href="#math">Math</a>
+    <a href="#collision">Collision</a>
+    <a class="section-link" href="#reference">Reference</a>
+    <a href="#colors">Built-in Colors</a>
+    <a href="#sysvars">System Variables</a>
+    <a href="#examples">Examples</a>
+</nav>
+
+<div class="main-content">
+<div class="container">
+
+<h2 id="overview">Overview</h2>
+<p>BlueScript is a BASIC-inspired scripting language designed for Project Blue on the ESP32-P4. Scripts are plain-text files with the <code>.bb</code> extension. They run in a managed windowed environment with 2D/3D graphics, mouse and keyboard input, networking, file I/O, audio, and remote peripheral control.</p>
+
+<div class="grid">
+    <div class="grid-card">
+        <h4>Event-Driven</h4>
+        <p>Scripts respond to mouse, keyboard, and per-frame update events via labeled handlers.</p>
+    </div>
+    <div class="grid-card">
+        <h4>Display List Rendering</h4>
+        <p>Drawing commands are collected into a thread-safe display list and replayed each frame.</p>
+    </div>
+    <div class="grid-card">
+        <h4>Dot-Namespaced API</h4>
+        <p>All commands use a <code>Namespace.Command</code> convention for clarity and organization.</p>
+    </div>
+</div>
+
+<h2 id="quickstart">Quick Start</h2>
+<p>Create a file with the <code>.bb</code> extension and place it on the SD card or in the <code>/scripts/</code> directory. The menu bar will detect it automatically.</p>
+
+<pre><code><span class="comment"># My First BlueScript</span>
+<span class="label">:onUpdate</span>
+<span class="func">SYSTEM.APPNAME</span> <span class="string">"Hello World"</span>
+<span class="func">SYSTEM.GETTIME</span>
+<span class="keyword">RETURN</span>
+
+<span class="label">:onDraw</span>
+<span class="func">Graphics.FillRect</span> <span class="number">0</span>, <span class="number">0</span>, <span class="var">win_w</span>, <span class="var">win_h</span>, <span class="var">BLACK</span>
+<span class="func">Graphics.DrawString</span> <span class="number">20</span>, <span class="number">20</span>, <span class="string">"Hello, Project Blue!"</span>, <span class="var">WHITE</span>
+<span class="func">Graphics.DrawString</span> <span class="number">20</span>, <span class="number">50</span>, <span class="var">hour</span> + <span class="string">":"</span> + <span class="var">minute</span>, <span class="var">CYAN</span>
+<span class="keyword">RETURN</span></code></pre>
+
+<h2 id="structure">Script Structure</h2>
+<p>A BlueScript program is organized into <strong>labels</strong> that define execution blocks. The runtime calls specific labels at specific times:</p>
+
+<table class="cmd-table">
+<tr><th>Label</th><th>When It Runs</th></tr>
+<tr><td><code>:onUpdate</code></td><td>Every frame. Use for game logic, animation state, input processing.</td></tr>
+<tr><td><code>:onDraw</code></td><td>Every frame, after onUpdate. Use for all drawing commands.</td></tr>
+<tr><td><code>:onMouseEvent</code></td><td>When mouse events occur. Check <code>event_type</code>, <code>event_x</code>, <code>event_y</code>.</td></tr>
+<tr><td><code>:onKeyboardEvent</code></td><td>When keyboard events occur. Check <code>event_type</code>, <code>event_value</code>.</td></tr>
+<tr><td><code>:myLabel</code></td><td>Custom labels for GOTO/GOSUB jumps.</td></tr>
+</table>
+
+<h3>Rules</h3>
+<ul>
+    <li>Lines starting with <code>#</code> are <strong>comments</strong>.</li>
+    <li>Lines starting with <code>:</code> define <strong>labels</strong>.</li>
+    <li>All other lines are <strong>commands</strong> with arguments.</li>
+    <li>Every event handler must end with <code>RETURN</code>.</li>
+    <li>Blank lines are ignored.</li>
+</ul>
+
+<h3>Execution Flow</h3>
+<ol>
+    <li>The file is read line-by-line and tokenized.</li>
+    <li>Labels are registered for jump targets.</li>
+    <li>Code before any label runs once on the first frame (setup code).</li>
+    <li><code>:onUpdate</code> runs every frame for logic.</li>
+    <li><code>:onDraw</code> runs every frame for rendering.</li>
+    <li>Event handlers run when input events are received.</li>
+</ol>
+
+<h2 id="variables">Variables &amp; Data Types</h2>
+<p>BlueScript supports three data types via the <code>LET</code> command:</p>
+
+<table class="cmd-table">
+<tr><th>Type</th><th>Description</th><th>Example</th></tr>
+<tr><td>INT</td><td>Integer number</td><td><code>LET score = 100</code></td></tr>
+<tr><td>FLOAT</td><td>Floating-point number</td><td><code>LET pi = 3.14159</code></td></tr>
+<tr><td>STR</td><td>String (text)</td><td><code>LET name = "Project Blue"</code></td></tr>
+</table>
+
+<pre><code><span class="func">LET</span> <span class="var">score</span> = <span class="number">0</span>
+<span class="func">LET</span> <span class="var">pi</span> = <span class="number">3.14159</span>
+<span class="func">LET</span> <span class="var">greeting</span> = <span class="string">"Hello"</span>
+<span class="func">LET</span> <span class="var">fullGreeting</span> = <span class="var">greeting</span> + <span class="string">" World"</span>  <span class="comment"># String concatenation with +</span>
+<span class="func">LET</span> <span class="var">hexColor</span> = <span class="number">0xF800</span>  <span class="comment"># Hex literals supported</span></code></pre>
+
+<h3>Type Promotion</h3>
+<ul>
+    <li>If either operand is FLOAT, arithmetic uses float.</li>
+    <li>If either operand is STR, <code>+</code> concatenates strings.</li>
+</ul>
+
+<h3>Assignment Syntax</h3>
+<p>The <code>LET</code> command assigns a value. The <code>=</code> sign is the assignment operator (not a comparison):</p>
+<pre><code><span class="func">LET</span> <span class="var">x</span> = <span class="number">10</span>
+<span class="func">LET</span> <span class="var">y</span> = <span class="var">x</span> * <span class="number">2</span> + <span class="number">5</span>
+<span class="func">LET</span> <span class="var">label</span> = <span class="string">"Score: "</span> + <span class="var">score</span></code></pre>
+
+<h2 id="expressions">Expressions</h2>
+<p>The expression evaluator is a recursive-descent parser with operator precedence.</p>
+
+<h3>Operators</h3>
+<table class="cmd-table">
+<tr><th>Operator</th><th>Description</th><th>Example</th></tr>
+<tr><td><code>+</code></td><td>Addition / String concatenation</td><td><code>a + b</code>, <code>"Hi " + name</code></td></tr>
+<tr><td><code>-</code></td><td>Subtraction / Unary minus</td><td><code>a - b</code>, <code>-x</code></td></tr>
+<tr><td><code>*</code></td><td>Multiplication</td><td><code>a * b</code></td></tr>
+<tr><td><code>/</code></td><td>Division</td><td><code>a / b</code></td></tr>
+<tr><td><code>%</code></td><td>Modulo</td><td><code>a % 2</code></td></tr>
+<tr><td><code>=</code>, <code>==</code></td><td>Equal</td><td><code>IF x = 10 THEN ...</code></td></tr>
+<tr><td><code>!=</code></td><td>Not equal</td><td><code>IF x != 0 THEN ...</code></td></tr>
+<tr><td><code>&gt;</code></td><td>Greater than</td><td><code>IF x &gt; 5 THEN ...</code></td></tr>
+<tr><td><code>&lt;</code></td><td>Less than</td><td><code>IF x &lt; 5 THEN ...</code></td></tr>
+<tr><td><code>&gt;=</code></td><td>Greater or equal</td><td><code>IF x &gt;= 5 THEN ...</code></td></tr>
+<tr><td><code>&lt;=</code></td><td>Less or equal</td><td><code>IF x &lt;= 5 THEN ...</code></td></tr>
+</table>
+
+<h3>Features</h3>
+<ul>
+    <li><strong>Parentheses</strong> for grouping: <code>(a + b) * c</code></li>
+    <li><strong>String literals</strong> enclosed in <code>"..."</code></li>
+    <li><strong>Hex literals</strong> with <code>0x</code> prefix: <code>0xF800</code></li>
+    <li><strong>Variable lookup</strong> by name</li>
+    <li><strong>No AND/OR/NOT</strong> &mdash; use nested IF statements instead</li>
+</ul>
+
+<div class="warn-box">
+    <strong>Important:</strong> BlueScript has no boolean operators (AND, OR, NOT). To combine conditions, use nested IF statements or separate checks with GOTO labels.
+</div>
+
+<h2 id="flow-control">Flow Control</h2>
+
+<h3>IF / THEN / ELSE / ENDIF</h3>
+<pre><code><span class="keyword">IF</span> <span class="var">score</span> &gt; <span class="number">100</span> <span class="keyword">THEN</span> <span class="func">Graphics.DrawString</span> <span class="number">10</span>, <span class="number">10</span>, <span class="string">"High Score!"</span>, <span class="var">GREEN</span>
+
+<span class="keyword">IF</span> <span class="var">health</span> = <span class="number">0</span> <span class="keyword">THEN</span>
+    <span class="func">Graphics.DrawString</span> <span class="number">10</span>, <span class="number">10</span>, <span class="string">"Game Over"</span>, <span class="var">RED</span>
+<span class="keyword">ELSEIF</span> <span class="var">health</span> &lt; <span class="number">25</span> <span class="keyword">THEN</span>
+    <span class="func">Graphics.DrawString</span> <span class="number">10</span>, <span class="number">10</span>, <span class="string">"Low Health"</span>, <span class="var">ORANGE</span>
+<span class="keyword">ELSE</span>
+    <span class="func">Graphics.DrawString</span> <span class="number">10</span>, <span class="number">10</span>, <span class="string">"Healthy"</span>, <span class="var">GREEN</span>
+<span class="keyword">ENDIF</span></code></pre>
+
+<h3>FOR / NEXT Loop</h3>
+<pre><code><span class="keyword">FOR</span> <span class="var">i</span> = <span class="number">0</span> <span class="keyword">TO</span> <span class="number">10</span>
+    <span class="func">Graphics.FillCircle</span> <span class="var">i</span> * <span class="number">30</span>, <span class="number">100</span>, <span class="number">5</span>, <span class="var">WHITE</span>
+<span class="keyword">NEXT</span>
+
+<span class="comment"># Countdown with STEP</span>
+<span class="keyword">FOR</span> <span class="var">t</span> = <span class="number">60</span> <span class="keyword">TO</span> <span class="number">0</span> <span class="keyword">STEP</span> <span class="number">-1</span>
+    <span class="func">PRINT</span> <span class="var">t</span>
+<span class="keyword">NEXT</span></code></pre>
+
+<h3>GOTO / GOSUB / RETURN</h3>
+<pre><code><span class="comment"># GOTO - unconditional jump</span>
+<span class="label">:start</span>
+<span class="func">PRINT</span> <span class="string">"Looping..."</span>
+<span class="keyword">GOTO</span> <span class="var">start</span>
+
+<span class="comment"># GOSUB - call a subroutine (returns with RETURN)</span>
+<span class="keyword">GOSUB</span> <span class="var">drawBorder</span>
+<span class="keyword">GOSUB</span> <span class="var">drawHUD</span>
+<span class="keyword">RETURN</span>
+
+<span class="label">:drawBorder</span>
+<span class="func">Graphics.DrawRect</span> <span class="number">0</span>, <span class="number">0</span>, <span class="var">win_w</span>, <span class="var">win_h</span>, <span class="var">WHITE</span>
+<span class="keyword">RETURN</span>
+
+<span class="label">:drawHUD</span>
+<span class="func">Graphics.DrawString</span> <span class="number">10</span>, <span class="number">10</span>, <span class="string">"HP: "</span> + <span class="var">health</span>, <span class="var">GREEN</span>
+<span class="keyword">RETURN</span></code></pre>
+
+<h3>END</h3>
+<pre><code><span class="keyword">IF</span> <span class="var">quit</span> = <span class="number">1</span> <span class="keyword">THEN</span> <span class="keyword">END</span></code></pre>
+
+<h2 id="events">Event Handlers</h2>
+
+<h3>Mouse Events</h3>
+<pre><code><span class="label">:onMouseEvent</span>
+<span class="keyword">IF</span> <span class="var">event_type</span> = <span class="string">"Down"</span> <span class="keyword">THEN</span>
+    <span class="func">LET</span> <span class="var">clickX</span> = <span class="var">event_x</span>
+    <span class="func">LET</span> <span class="var">clickY</span> = <span class="var">event_y</span>
+    <span class="func">LET</span> <span class="var">clicked</span> = <span class="number">1</span>
+<span class="keyword">ENDIF</span>
+<span class="keyword">IF</span> <span class="var">event_type</span> = <span class="string">"Move"</span> <span class="keyword">THEN</span>
+    <span class="func">LET</span> <span class="var">mouseX</span> = <span class="var">event_x</span>
+    <span class="func">LET</span> <span class="var">mouseY</span> = <span class="var">event_y</span>
+<span class="keyword">ENDIF</span>
+<span class="keyword">RETURN</span></code></pre>
+
+<p><strong>Event variables:</strong></p>
+<table class="cmd-table">
+<tr><th>Variable</th><th>Values</th></tr>
+<tr><td><code>event_type</code></td><td><code>"Down"</code>, <code>"Up"</code>, <code>"Move"</code></td></tr>
+<tr><td><code>event_x</code></td><td>Mouse X coordinate (relative to window content)</td></tr>
+<tr><td><code>event_y</code></td><td>Mouse Y coordinate (relative to window content)</td></tr>
+</table>
+
+<h3>Keyboard Events</h3>
+<pre><code><span class="label">:onKeyboardEvent</span>
+<span class="keyword">IF</span> <span class="var">event_type</span> = <span class="string">"KeyDown"</span> <span class="keyword">THEN</span>
+    <span class="keyword">IF</span> <span class="var">event_value</span> = <span class="string">"Escape"</span> <span class="keyword">THEN</span> <span class="func">System.Close</span>
+    <span class="keyword">IF</span> <span class="var">event_value</span> = <span class="string">"Space"</span> <span class="keyword">THEN</span> <span class="func">LET</span> <span class="var">jumping</span> = <span class="number">1</span>
+<span class="keyword">ENDIF</span>
+<span class="keyword">IF</span> <span class="var">event_type</span> = <span class="string">"Char"</span> <span class="keyword">THEN</span>
+    <span class="func">LET</span> <span class="var">lastKey</span> = <span class="var">event_value</span>
+<span class="keyword">ENDIF</span>
+<span class="keyword">RETURN</span></code></pre>
+
+<p><strong>Event variables:</strong></p>
+<table class="cmd-table">
+<tr><th>Variable</th><th>Values</th></tr>
+<tr><td><code>event_type</code></td><td><code>"KeyDown"</code>, <code>"KeyUp"</code>, <code>"Char"</code></td></tr>
+<tr><td><code>event_value</code></td><td>Key name, e.g. <code>"Escape"</code>, <code>"Space"</code>, <code>"a"</code>, <code>"Enter"</code></td></tr>
+</table>
+
+<h2 id="graphics">Graphics Commands</h2>
+
+<h3 id="2d-drawing">2D Drawing</h3>
+
+<table class="cmd-table">
+<tr><th>Command</th><th>Arguments</th><th>Description</th></tr>
+<tr><td><code>Graphics.FillRect</code></td><td>x, y, w, h, color</td><td>Draw a filled rectangle</td></tr>
+<tr><td><code>Graphics.DrawRect</code></td><td>x, y, w, h, color</td><td>Draw a rectangle outline (1px)</td></tr>
+<tr><td><code>Graphics.DrawLine</code></td><td>x1, y1, x2, y2, color</td><td>Draw a line between two points</td></tr>
+<tr><td><code>Graphics.DrawCircle</code></td><td>x, y, radius, color</td><td>Draw a circle outline</td></tr>
+<tr><td><code>Graphics.FillCircle</code></td><td>x, y, radius, color</td><td>Draw a filled circle</td></tr>
+<tr><td><code>Graphics.DrawTriangle</code></td><td>x1,y1, x2,y2, x3,y3, color</td><td>Draw a triangle outline</td></tr>
+<tr><td><code>Graphics.DrawString</code></td><td>x, y, text, color</td><td>Draw bitmap font text</td></tr>
+<tr><td><code>Graphics.DrawProportional</code></td><td>x, y, text, color, ?, scale</td><td>Draw anti-aliased scaled text</td></tr>
+<tr><td><code>Graphics.DrawButton</code></td><td>x, y, w, h, text, pressed</td><td>Draw a button widget (pressed: 0 or 1)</td></tr>
+<tr><td><code>Graphics.DrawImage</code></td><td>path, [x], [y]</td><td>Load and draw JPG/PNG/BMP image</td></tr>
+</table>
+
+<h4>Examples</h4>
+<pre><code><span class="comment"># Filled background</span>
+<span class="func">Graphics.FillRect</span> <span class="number">0</span>, <span class="number">0</span>, <span class="var">win_w</span>, <span class="var">win_h</span>, <span class="var">BLACK</span>
+
+<span class="comment"># Red rectangle border</span>
+<span class="func">Graphics.DrawRect</span> <span class="number">10</span>, <span class="number">10</span>, <span class="number">200</span>, <span class="number">100</span>, <span class="var">RED</span>
+
+<span class="comment"># Diagonal line</span>
+<span class="func">Graphics.DrawLine</span> <span class="number">0</span>, <span class="number">0</span>, <span class="var">win_w</span>, <span class="var">win_h</span>, <span class="var">WHITE</span>
+
+<span class="comment"># Green circle</span>
+<span class="func">Graphics.FillCircle</span> <span class="number">400</span>, <span class="number">300</span>, <span class="number">50</span>, <span class="var">GREEN</span>
+
+<span class="comment"># Triangle</span>
+<span class="func">Graphics.DrawTriangle</span> <span class="number">100</span>,<span class="number">50</span>, <span class="number">50</span>,<span class="number">150</span>, <span class="number">150</span>,<span class="number">150</span>, <span class="var">YELLOW</span>
+
+<span class="comment"># Button</span>
+<span class="func">Graphics.DrawButton</span> <span class="number">10</span>, <span class="number">200</span>, <span class="number">120</span>, <span class="number">40</span>, <span class="string">"Click Me"</span>, <span class="number">0</span>
+
+<span class="comment"># Load and draw an image</span>
+<span class="func">Graphics.DrawImage</span> <span class="string">"/sdcard/photo.jpg"</span>, <span class="number">100</span>, <span class="number">100</span></code></pre>
+
+<h3 id="3d-graphics">3D Graphics</h3>
+
+<table class="cmd-table">
+<tr><th>Command</th><th>Arguments</th><th>Description</th></tr>
+<tr><td><code>3D.DrawCube</code></td><td>cx, cy, size, angY, angX, frontCol, backCol, edgeCol</td><td>Draw a wireframe 3D cube with Y/X rotation and perspective projection</td></tr>
+<tr><td><code>3D.MatrixRotate</code></td><td>axis, degrees</td><td>Build a 3x3 rotation matrix (axis: "X", "Y", or "Z"). Stored in m0-m8 variables.</td></tr>
+<tr><td><code>3D.TransformPoints</code></td><td>(none)</td><td>Apply m0-m8 matrix to vertex variables v0_x/y/z through v99_x/y/z</td></tr>
+<tr><td><code>3D.ProjectPoints</code></td><td>(none)</td><td>Perspective-project v0-v99 to p0_x/y screen coordinates (focal length 800)</td></tr>
+</table>
+
+<h4>Examples</h4>
+<pre><code><span class="comment"># Rotating neon cube</span>
+<span class="func">LET</span> <span class="var">angle</span> = <span class="var">angle</span> + <span class="var">delta_time</span> * <span class="number">60</span>
+<span class="func">3D.DrawCube</span> <span class="number">400</span>, <span class="number">300</span>, <span class="number">80</span>, <span class="var">angle</span>, <span class="var">angle</span> * <span class="number">0.7</span>, <span class="var">CYAN</span>, <span class="var">BLUE</span>, <span class="var">WHITE</span>
+
+<span class="comment"># Custom 3D rotation pipeline</span>
+<span class="func">3D.MatrixRotate</span> <span class="string">"Y"</span>, <span class="var">angle</span>
+<span class="func">3D.TransformPoints</span>
+<span class="func">3D.ProjectPoints</span>
+<span class="func">Graphics.DrawLine</span> <span class="var">p0_x</span>, <span class="var">p0_y</span>, <span class="var">p1_x</span>, <span class="var">p1_y</span>, <span class="var">WHITE</span></code></pre>
+
+<h3 id="sprites">Sprites</h3>
+<p>Up to <strong>16 sprites</strong> can be cached in memory (slots 0&ndash;15).</p>
+
+<table class="cmd-table">
+<tr><th>Command</th><th>Arguments</th><th>Description</th></tr>
+<tr><td><code>Sprite.Load</code></td><td>id, path</td><td>Load image into sprite slot. Sets <code>sprite_w</code>, <code>sprite_h</code>.</td></tr>
+<tr><td><code>Sprite.Draw</code></td><td>id, x, y</td><td>Draw sprite at position</td></tr>
+<tr><td><code>Sprite.DrawScaled</code></td><td>id, x, y, scaleX, scaleY</td><td>Draw sprite with scaling</td></tr>
+<tr><td><code>Sprite.GetSize</code></td><td>id</td><td>Get sprite dimensions into <code>sprite_w</code>, <code>sprite_h</code></td></tr>
+</table>
+
+<pre><code><span class="func">Sprite.Load</span> <span class="number">0</span>, <span class="string">"/sdcard/player.png"</span>
+<span class="func">Sprite.Draw</span> <span class="number">0</span>, <span class="var">playerX</span>, <span class="var">playerY</span>
+
+<span class="func">Sprite.Load</span> <span class="number">1</span>, <span class="string">"/sdcard/enemy.bmp"</span>
+<span class="func">Sprite.DrawScaled</span> <span class="number">1</span>, <span class="number">200</span>, <span class="number">150</span>, <span class="number">2.0</span>, <span class="number">2.0</span></code></pre>
+
+<h3 id="text-rendering">Text Rendering</h3>
+<table class="cmd-table">
+<tr><th>Command</th><th>Notes</th></tr>
+<tr><td><code>Graphics.DrawString</code></td><td>Bitmap font. Fast, fixed-width. Best for HUDs and system text.</td></tr>
+<tr><td><code>Graphics.DrawProportional</code></td><td>Anti-aliased scalable font. Supports a <code>scale</code> parameter for sizing.</td></tr>
+</table>
+
+<h2 id="system">System Commands</h2>
+
+<h3 id="system-commands">System</h3>
+
+<table class="cmd-table">
+<tr><th>Command</th><th>Arguments</th><th>Sets Variable</th><th>Description</th></tr>
+<tr><td><code>SYSTEM.APPNAME</code></td><td>title</td><td>&mdash;</td><td>Set the window title bar text</td></tr>
+<tr><td><code>SYSTEM.GETTIME</code></td><td>(none)</td><td><code>hour</code>, <code>minute</code>, <code>second</code>, <code>day</code>, <code>month</code>, <code>year</code></td><td>Populate time/date variables</td></tr>
+<tr><td><code>SYSTEM.REBOOT</code></td><td>(none)</td><td>&mdash;</td><td>Reboot the device</td></tr>
+<tr><td><code>SYSTEM.TOP</code></td><td>(none)</td><td><code>mem_free</code>, <code>psram_free</code>, <code>tasks_count</code>, <code>uptime</code></td><td>Refresh system stats</td></tr>
+<tr><td><code>SYSTEM.PING</code></td><td>host</td><td><code>ping_ms</code>, <code>ping_success</code></td><td>Ping a host (ICMP). Returns round-trip time.</td></tr>
+<tr><td><code>SYSTEM.WGET</code></td><td>url, localPath</td><td><code>wget_success</code>, <code>wget_size</code></td><td>Download a file via HTTP</td></tr>
+<tr><td><code>SYSTEM.DIR</code></td><td>path</td><td><code>file_count</code>, <code>file_0</code>&hellip;<code>file_N</code></td><td>List directory contents</td></tr>
+<tr><td><code>SYSTEM.PRINT</code></td><td>expression</td><td>&mdash;</td><td>Print to ESP debug log</td></tr>
+<tr><td><code>System.Close</code></td><td>(none)</td><td>&mdash;</td><td>Close the current application window</td></tr>
+<tr><td><code>System.GetStats</code></td><td>(none)</td><td><code>heap_free</code>, <code>psram_free</code></td><td>Refresh memory stats</td></tr>
+<tr><td><code>System.GetCpuTemp</code></td><td>(none)</td><td><code>cpu_temp</code></td><td>Read estimated CPU temperature</td></tr>
+<tr><td><code>System.GetChipType</code></td><td>(none)</td><td><code>chip_type</code></td><td>Get chip identifier (e.g. "ESP32-P4")</td></tr>
+<tr><td><code>System.GetUptime</code></td><td>(none)</td><td><code>uptime</code></td><td>Get seconds since boot</td></tr>
+<tr><td><code>System.Reset</code></td><td>(none)</td><td>&mdash;</td><td>Reboot the device</td></tr>
+<tr><td><code>System.SetBackground</code></td><td>path</td><td>&mdash;</td><td>Set desktop background image</td></tr>
+<tr><td><code>System.ClearBackground</code></td><td>(none)</td><td>&mdash;</td><td>Remove desktop background</td></tr>
+<tr><td><code>System.SetTime</code></td><td>year, month, day, hour, min</td><td>&mdash;</td><td>Set system time</td></tr>
+<tr><td><code>System.SetTimezone</code></td><td>timezone_string</td><td>&mdash;</td><td>Set timezone</td></tr>
+<tr><td><code>System.GetTimezone</code></td><td>(none)</td><td><code>timezone</code></td><td>Get current timezone</td></tr>
+</table>
+
+<h4>Examples</h4>
+<pre><code><span class="comment"># Set window title</span>
+<span class="func">SYSTEM.APPNAME</span> <span class="string">"My Application"</span>
+
+<span class="comment"># Get current time</span>
+<span class="func">SYSTEM.GETTIME</span>
+<span class="func">Graphics.DrawString</span> <span class="number">10</span>, <span class="number">10</span>, <span class="var">hour</span> + <span class="string">":"</span> + <span class="var">minute</span> + <span class="string">":"</span> + <span class="var">second</span>, <span class="var">WHITE</span>
+
+<span class="comment"># Check system resources</span>
+<span class="func">SYSTEM.TOP</span>
+<span class="func">Graphics.DrawString</span> <span class="number">10</span>, <span class="number">40</span>, <span class="string">"Free RAM: "</span> + <span class="var">mem_free</span>, <span class="var">CYAN</span>
+
+<span class="comment"># Ping a server</span>
+<span class="func">SYSTEM.PING</span> <span class="string">"8.8.8.8"</span>
+<span class="keyword">IF</span> <span class="var">ping_success</span> = <span class="number">1</span> <span class="keyword">THEN</span>
+    <span class="func">Graphics.DrawString</span> <span class="number">10</span>, <span class="number">70</span>, <span class="string">"Ping: "</span> + <span class="var">ping_ms</span> + <span class="string">"ms"</span>, <span class="var">GREEN</span>
+<span class="keyword">ENDIF</span>
+
+<span class="comment"># List files on SD card</span>
+<span class="func">SYSTEM.DIR</span> <span class="string">"/sdcard"</span>
+<span class="keyword">FOR</span> <span class="var">i</span> = <span class="number">0</span> <span class="keyword">TO</span> <span class="var">file_count</span> - <span class="number">1</span>
+    <span class="func">PRINT</span> <span class="var">file_</span> + <span class="var">i</span>
+<span class="keyword">NEXT</span></code></pre>
+
+<h3 id="network">Network</h3>
+
+<table class="cmd-table">
+<tr><th>Command</th><th>Arguments</th><th>Sets Variable</th><th>Description</th></tr>
+<tr><td><code>Network.GetIP</code></td><td>(none)</td><td><code>net_ip</code></td><td>Get current IP address</td></tr>
+<tr><td><code>Network.GetRSSI</code></td><td>(none)</td><td><code>net_rssi</code></td><td>Get WiFi signal strength</td></tr>
+<tr><td><code>Network.IsConnected</code></td><td>(none)</td><td><code>net_connected</code></td><td>Check if WiFi is connected (0 or 1)</td></tr>
+<tr><td><code>Network.WaitConnected</code></td><td>(none)</td><td>&mdash;</td><td>Block up to 30 seconds waiting for WiFi</td></tr>
+<tr><td><code>Network.SendEmail</code></td><td>to, subject, body, [server], [port], [password]</td><td>&mdash;</td><td>Send email via SMTP</td></tr>
+</table>
+
+<h4>Examples</h4>
+<pre><code><span class="comment"># Check WiFi status</span>
+<span class="func">Network.IsConnected</span>
+<span class="keyword">IF</span> <span class="var">net_connected</span> = <span class="number">1</span> <span class="keyword">THEN</span>
+    <span class="func">Network.GetIP</span>
+    <span class="func">Graphics.DrawString</span> <span class="number">10</span>, <span class="number">10</span>, <span class="string">"IP: "</span> + <span class="var">net_ip</span>, <span class="var">GREEN</span>
+<span class="keyword">ENDIF</span>
+
+<span class="comment"># Send an email</span>
+<span class="func">Network.SendEmail</span> <span class="string">"user@example.com"</span>, <span class="string">"Alert"</span>, <span class="string">"Temperature too high!"</span>, <span class="string">"smtp.gmail.com"</span>, <span class="number">587</span>, <span class="string">"password"</span></code></pre>
+
+<h3 id="io">I/O &amp; Files</h3>
+
+<table class="cmd-table">
+<tr><th>Command</th><th>Arguments</th><th>Sets Variable</th><th>Description</th></tr>
+<tr><td><code>IO.DigitalWrite</code></td><td>pin, value</td><td>&mdash;</td><td>Write GPIO pin HIGH or LOW</td></tr>
+<tr><td><code>IO.ReadAdc</code></td><td>pin</td><td><code>adc_val</code></td><td>Read analog-to-digital converter value</td></tr>
+<tr><td><code>IO.WriteDac</code></td><td>pin, value</td><td>&mdash;</td><td>Write DAC output (if supported)</td></tr>
+<tr><td><code>IO.SerialRead</code></td><td>(none)</td><td><code>serial_in</code></td><td>Read data from UART0</td></tr>
+<tr><td><code>IO.SerialWrite</code></td><td>data</td><td>&mdash;</td><td>Write data to UART0</td></tr>
+<tr><td><code>IO.PRINT</code></td><td>expression</td><td>&mdash;</td><td>Print to ESP debug log</td></tr>
+<tr><td><code>IO.MKDIR</code></td><td>path</td><td><code>io_success</code></td><td>Create a directory</td></tr>
+<tr><td><code>IO.REMOVE</code></td><td>path</td><td><code>io_success</code></td><td>Remove a file or directory</td></tr>
+<tr><td><code>IO.RENAME</code></td><td>oldPath, newPath</td><td><code>io_success</code></td><td>Rename or move a file</td></tr>
+<tr><td><code>IO.COPY</code></td><td>src, dst</td><td><code>io_success</code></td><td>Copy a file</td></tr>
+<tr><td><code>IO.EXISTS</code></td><td>path</td><td><code>io_success</code></td><td>Check if file/directory exists (1 = yes)</td></tr>
+</table>
+
+<h4>Examples</h4>
+<pre><code><span class="comment"># Turn on an LED</span>
+<span class="func">IO.DigitalWrite</span> <span class="number">2</span>, <span class="number">1</span>
+
+<span class="comment"># Read a sensor</span>
+<span class="func">IO.ReadAdc</span> <span class="number">4</span>
+<span class="func">Graphics.DrawString</span> <span class="number">10</span>, <span class="number">10</span>, <span class="string">"Sensor: "</span> + <span class="var">adc_val</span>, <span class="var">WHITE</span>
+
+<span class="comment"># Create a log directory</span>
+<span class="func">IO.MKDIR</span> <span class="string">"/sdcard/logs"</span>
+
+<span class="comment"># Write to serial</span>
+<span class="func">IO.SerialWrite</span> <span class="string">"AT+RST\r\n"</span>
+
+<span class="comment"># Check if a config file exists</span>
+<span class="func">IO.EXISTS</span> <span class="string">"/sdcard/config.txt"</span>
+<span class="keyword">IF</span> <span class="var">io_success</span> = <span class="number">1</span> <span class="keyword">THEN</span>
+    <span class="func">PRINT</span> <span class="string">"Config found"</span>
+<span class="keyword">ENDIF</span></code></pre>
+
+<h3 id="audio">Audio</h3>
+
+<table class="cmd-table">
+<tr><th>Command</th><th>Arguments</th><th>Description</th></tr>
+<tr><td><code>Audio.PlaySfx</code></td><td>sfxId</td><td>Play a sound effect by ID</td></tr>
+<tr><td><code>Audio.StreamMp3</code></td><td>path</td><td>Open and play an MP3 file</td></tr>
+</table>
+
+<pre><code><span class="comment"># Play a sound effect</span>
+<span class="func">Audio.PlaySfx</span> <span class="number">0</span>
+
+<span class="comment"># Stream music</span>
+<span class="func">Audio.StreamMp3</span> <span class="string">"/sdcard/music.mp3"</span></code></pre>
+
+<h3 id="peripherals">Peripherals (Remote I/O via UDP)</h3>
+
+<table class="cmd-table">
+<tr><th>Command</th><th>Arguments</th><th>Sets Variable</th><th>Description</th></tr>
+<tr><td><code>Peripherals.Scan</code></td><td>(none)</td><td>&mdash;</td><td>Start network discovery broadcast</td></tr>
+<tr><td><code>Peripherals.Add</code></td><td>ip, ...</td><td>&mdash;</td><td>Register a remote board by IP</td></tr>
+<tr><td><code>Peripherals.SetGpio</code></td><td>ip, pin, value</td><td>&mdash;</td><td>Set GPIO on a remote board (UDP port 5001)</td></tr>
+<tr><td><code>Peripherals.GetAdc</code></td><td>ip, pin</td><td><code>adc_val</code></td><td>Read ADC from a remote board (500ms timeout)</td></tr>
+</table>
+
+<pre><code><span class="comment"># Discover and control remote boards</span>
+<span class="func">Peripherals.Scan</span>
+<span class="func">Peripherals.Add</span> <span class="string">"192.168.1.50"</span>
+<span class="func">Peripherals.SetGpio</span> <span class="string">"192.168.1.50"</span>, <span class="number">2</span>, <span class="number">1</span>
+<span class="func">Peripherals.GetAdc</span> <span class="string">"192.168.1.50"</span>, <span class="number">4</span>
+<span class="func">Graphics.DrawString</span> <span class="number">10</span>, <span class="number">10</span>, <span class="string">"Remote ADC: "</span> + <span class="var">adc_val</span>, <span class="var">WHITE</span></code></pre>
+
+<h3 id="math">Math</h3>
+
+<table class="cmd-table">
+<tr><th>Command</th><th>Arguments</th><th>Sets Variable</th><th>Description</th></tr>
+<tr><td><code>Math.Sin</code></td><td>degrees</td><td><code>result</code></td><td>Sine of angle in degrees</td></tr>
+<tr><td><code>Math.Cos</code></td><td>degrees</td><td><code>result</code></td><td>Cosine of angle in degrees</td></tr>
+<tr><td><code>Math.Random</code></td><td>min, max</td><td><code>result</code></td><td>Random integer in [min, max]</td></tr>
+<tr><td><code>Math.Sqrt</code></td><td>value</td><td><code>result</code></td><td>Square root</td></tr>
+<tr><td><code>Math.Abs</code></td><td>value</td><td><code>result</code></td><td>Absolute value</td></tr>
+</table>
+
+<pre><code><span class="comment"># Sine wave animation</span>
+<span class="func">LET</span> <span class="var">t</span> = <span class="var">t</span> + <span class="var">delta_time</span>
+<span class="func">Math.Sin</span> <span class="var">t</span> * <span class="number">60</span>
+<span class="func">LET</span> <span class="var">y</span> = <span class="number">300</span> + <span class="var">result</span> * <span class="number">100</span>
+<span class="func">Graphics.FillCircle</span> <span class="number">400</span>, <span class="var">y</span>, <span class="number">10</span>, <span class="var">CYAN</span>
+
+<span class="comment"># Random stars</span>
+<span class="func">Math.Random</span> <span class="number">0</span>, <span class="var">win_w</span>
+<span class="func">LET</span> <span class="var">starX</span> = <span class="var">result</span>
+<span class="func">Math.Random</span> <span class="number">0</span>, <span class="var">win_h</span>
+<span class="func">LET</span> <span class="var">starY</span> = <span class="var">result</span>
+<span class="func">Graphics.FillCircle</span> <span class="var">starX</span>, <span class="var">starY</span>, <span class="number">1</span>, <span class="var">WHITE</span></code></pre>
+
+<h3 id="collision">Collision Detection</h3>
+
+<table class="cmd-table">
+<tr><th>Command</th><th>Arguments</th><th>Sets Variable</th><th>Description</th></tr>
+<tr><td><code>Collision.Rect</code></td><td>ax,ay,aw,ah, bx,by,bw,bh</td><td><code>collision_hit</code></td><td>AABB rectangle collision (0 or 1)</td></tr>
+<tr><td><code>Collision.Circle</code></td><td>ax,ay,ar, bx,by,br</td><td><code>collision_hit</code>, <code>collision_dist</code></td><td>Circle-circle collision (0 or 1)</td></tr>
+<tr><td><code>Collision.PointRect</code></td><td>px,py, rx,ry,rw,rh</td><td><code>collision_hit</code></td><td>Point-inside-rectangle test (0 or 1)</td></tr>
+</table>
+
+<pre><code><span class="comment"># Check if player overlaps enemy</span>
+<span class="func">Collision.Rect</span> <span class="var">playerX</span>,<span class="var">playerY</span>,<span class="number">32</span>,<span class="number">32</span>, <span class="var">enemyX</span>,<span class="var">enemyY</span>,<span class="number">32</span>,<span class="number">32</span>
+<span class="keyword">IF</span> <span class="var">collision_hit</span> = <span class="number">1</span> <span class="keyword">THEN</span>
+    <span class="func">PRINT</span> <span class="string">"Collision detected!"</span>
+<span class="keyword">ENDIF</span>
+
+<span class="comment"># Check if mouse is inside a button</span>
+<span class="func">Collision.PointRect</span> <span class="var">event_x</span>,<span class="var">event_y</span>, <span class="number">10</span>,<span class="number">200</span>,<span class="number">120</span>,<span class="number">40</span>
+<span class="keyword">IF</span> <span class="var">collision_hit</span> = <span class="number">1</span> <span class="keyword">THEN</span>
+    <span class="keyword">IF</span> <span class="var">event_type</span> = <span class="string">"Down"</span> <span class="keyword">THEN</span>
+        <span class="func">PRINT</span> <span class="string">"Button clicked!"</span>
+    <span class="keyword">ENDIF</span>
+<span class="keyword">ENDIF</span></code></pre>
+
+<h3>OS</h3>
+
+<table class="cmd-table">
+<tr><th>Command</th><th>Arguments</th><th>Description</th></tr>
+<tr><td><code>OS.Delay</code></td><td>milliseconds</td><td>Block execution for the given duration</td></tr>
+</table>
+
+<h2 id="colors">Built-in Color Constants</h2>
+<p>Pre-defined as RGB565 values. Available in all drawing commands.</p>
+
+<div class="color-grid">
+    <div class="color-swatch"><div class="swatch" style="background:#000000"></div>BLACK 0x0000</div>
+    <div class="color-swatch"><div class="swatch" style="background:#ffffff"></div>WHITE 0xFFFF</div>
+    <div class="color-swatch"><div class="swatch" style="background:#f80000"></div>RED 0xF800</div>
+    <div class="color-swatch"><div class="swatch" style="background:#07e000"></div>GREEN 0x07E0</div>
+    <div class="color-swatch"><div class="swatch" style="background:#00001f"></div>BLUE 0x001F</div>
+    <div class="color-swatch"><div class="swatch" style="background:#07ff07"></div>CYAN 0x07FF</div>
+    <div class="color-swatch"><div class="swatch" style="background:#f81ff8"></div>MAGENTA 0xF81F</div>
+    <div class="color-swatch"><div class="swatch" style="background:#ffe000"></div>YELLOW 0xFFE0</div>
+    <div class="color-swatch"><div class="swatch" style="background:#fd2000"></div>ORANGE 0xFD20</div>
+    <div class="color-swatch"><div class="swatch" style="background:#780f0f"></div>PURPLE 0x780F</div>
+    <div class="color-swatch"><div class="swatch" style="background:#fc1800"></div>PINK 0xFC18</div>
+    <div class="color-swatch"><div class="swatch" style="background:#841084"></div>GRAY 0x8410</div>
+    <div class="color-swatch"><div class="swatch" style="background:#841084"></div>GREY 0x8410</div>
+    <div class="color-swatch"><div class="swatch" style="background:#420842"></div>DARKGRAY 0x4208</div>
+    <div class="color-swatch"><div class="swatch" style="background:#000010"></div>NAVY 0x0010</div>
+    <div class="color-swatch"><div class="swatch" style="background:#041000"></div>TEAL 0x0410</div>
+    <div class="color-swatch"><div class="swatch" style="background:#c618c6"></div>SILVER 0xC618</div>
+    <div class="color-swatch"><div class="swatch" style="background:#800000"></div>MAROON 0x8000</div>
+    <div class="color-swatch"><div class="swatch" style="background:#87e000"></div>LIME 0x87E0</div>
+    <div class="color-swatch"><div class="swatch" style="background:#fea000"></div>GOLD 0xFEA0</div>
+</div>
+
+<h2 id="sysvars">System Variables</h2>
+<p>These variables are automatically updated every frame by the runtime:</p>
+
+<table class="cmd-table">
+<tr><th>Variable</th><th>Type</th><th>Description</th></tr>
+<tr><td><code>delta_time</code></td><td>FLOAT</td><td>Seconds since the last frame</td></tr>
+<tr><td><code>win_w</code></td><td>INT</td><td>Window content width (pixels)</td></tr>
+<tr><td><code>win_h</code></td><td>INT</td><td>Window content height (pixels)</td></tr>
+<tr><td><code>uptime</code></td><td>FLOAT</td><td>Seconds since device boot</td></tr>
+<tr><td><code>psram_free</code></td><td>INT</td><td>Free PSRAM in bytes</td></tr>
+<tr><td><code>mem_free</code></td><td>INT</td><td>Free heap in bytes</td></tr>
+<tr><td><code>heap_free</code></td><td>INT</td><td>Alias for <code>mem_free</code></td></tr>
+<tr><td><code>cpu_load</code></td><td>INT</td><td>Estimated CPU load (0&ndash;100%)</td></tr>
+</table>
+
+<h3>Command Result Variables</h3>
+<p>Many commands store their output in well-known variables:</p>
+
+<table class="cmd-table">
+<tr><th>Variable</th><th>Set By</th><th>Description</th></tr>
+<tr><td><code>result</code></td><td>Math.Sin, Math.Cos, Math.Random, Math.Sqrt, Math.Abs</td><td>Last math operation result</td></tr>
+<tr><td><code>collision_hit</code></td><td>Collision.Rect, Collision.Circle, Collision.PointRect</td><td>1 if collision, 0 otherwise</td></tr>
+<tr><td><code>collision_dist</code></td><td>Collision.Circle</td><td>Distance between circle centers</td></tr>
+<tr><td><code>adc_val</code></td><td>IO.ReadAdc, Peripherals.GetAdc</td><td>ADC reading</td></tr>
+<tr><td><code>net_ip</code></td><td>Network.GetIP</td><td>IP address string</td></tr>
+<tr><td><code>net_rssi</code></td><td>Network.GetRSSI</td><td>WiFi signal strength</td></tr>
+<tr><td><code>net_connected</code></td><td>Network.IsConnected</td><td>1 if connected, 0 otherwise</td></tr>
+<tr><td><code>ping_ms</code></td><td>SYSTEM.PING</td><td>Round-trip ping time in ms</td></tr>
+<tr><td><code>ping_success</code></td><td>SYSTEM.PING</td><td>1 if ping succeeded</td></tr>
+<tr><td><code>wget_success</code></td><td>SYSTEM.WGET</td><td>1 if download succeeded</td></tr>
+<tr><td><code>wget_size</code></td><td>SYSTEM.WGET</td><td>Downloaded file size</td></tr>
+<tr><td><code>file_count</code></td><td>SYSTEM.DIR</td><td>Number of files found</td></tr>
+<tr><td><code>file_0</code>&hellip;<code>file_N</code></td><td>SYSTEM.DIR</td><td>File names from listing</td></tr>
+<tr><td><code>io_success</code></td><td>IO.MKDIR, IO.REMOVE, IO.RENAME, IO.COPY, IO.EXISTS</td><td>1 if operation succeeded</td></tr>
+<tr><td><code>serial_in</code></td><td>IO.SerialRead</td><td>Data received from UART</td></tr>
+<tr><td><code>sprite_w</code></td><td>Sprite.Load, Sprite.GetSize</td><td>Sprite width in pixels</td></tr>
+<tr><td><code>sprite_h</code></td><td>Sprite.Load, Sprite.GetSize</td><td>Sprite height in pixels</td></tr>
+<tr><td><code>cpu_temp</code></td><td>System.GetCpuTemp</td><td>Estimated CPU temperature</td></tr>
+<tr><td><code>chip_type</code></td><td>System.GetChipType</td><td>Chip identifier string</td></tr>
+<tr><td><code>timezone</code></td><td>System.GetTimezone</td><td>Current timezone string</td></tr>
+<tr><td><code>hour, minute, second</code></td><td>SYSTEM.GETTIME</td><td>Current time components</td></tr>
+<tr><td><code>day, month, year</code></td><td>SYSTEM.GETTIME</td><td>Current date components</td></tr>
+<tr><td><code>event_type</code></td><td>Event handlers</td><td>Current event type string</td></tr>
+<tr><td><code>event_x, event_y</code></td><td>onMouseEvent</td><td>Mouse coordinates</td></tr>
+<tr><td><code>event_value</code></td><td>onKeyboardEvent</td><td>Key name string</td></tr>
+<tr><td><code>m0</code>&hellip;<code>m8</code></td><td>3D.MatrixRotate</td><td>3x3 rotation matrix elements</td></tr>
+<tr><td><code>v0_x</code>&hellip;<code>v99_x</code>, <code>v0_y</code>&hellip;<code>v99_y</code>, <code>v0_z</code>&hellip;<code>v99_z</code></td><td>User-defined</td><td>3D vertex coordinates</td></tr>
+<tr><td><code>p0_x</code>&hellip;<code>p99_x</code>, <code>p0_y</code>&hellip;<code>p99_y</code></td><td>3D.ProjectPoints</td><td>Projected 2D screen coordinates</td></tr>
+</table>
+
+<h2 id="examples">Example Programs</h2>
+
+<h3>Hello World with Time</h3>
+<pre><code><span class="label">:onUpdate</span>
+<span class="func">SYSTEM.APPNAME</span> <span class="string">"System Welcome"</span>
+<span class="func">SYSTEM.GETTIME</span>
+<span class="func">SYSTEM.TOP</span>
+<span class="func">System.GetChipType</span>
+<span class="func">System.GetUptime</span>
+<span class="keyword">RETURN</span>
+
+<span class="label">:onDraw</span>
+<span class="func">Graphics.FillRect</span> <span class="number">0</span>, <span class="number">0</span>, <span class="var">win_w</span>, <span class="var">win_h</span>, <span class="var">BLACK</span>
+<span class="func">Graphics.DrawString</span> <span class="number">20</span>, <span class="number">15</span>, <span class="string">"Welcome to Project Blue"</span>, <span class="var">CYAN</span>
+<span class="func">Graphics.DrawLine</span> <span class="number">20</span>, <span class="number">38</span>, <span class="number">250</span>, <span class="number">38</span>, <span class="var">BLUE</span>
+<span class="func">Graphics.DrawString</span> <span class="number">20</span>, <span class="number">50</span>, <span class="string">"Chip: "</span> + <span class="var">chip_type</span>, <span class="var">WHITE</span>
+<span class="func">Graphics.DrawString</span> <span class="number">20</span>, <span class="number">70</span>, <span class="string">"Heap: "</span> + <span class="var">mem_free</span>, <span class="var">GREEN</span>
+<span class="func">Graphics.DrawString</span> <span class="number">20</span>, <span class="number">90</span>, <span class="string">"PSRAM: "</span> + <span class="var">psram_free</span>, <span class="var">GREEN</span>
+<span class="func">Graphics.DrawString</span> <span class="number">20</span>, <span class="number">110</span>, <span class="string">"Uptime: "</span> + <span class="var">uptime</span> + <span class="string">"s"</span>, <span class="var">WHITE</span>
+<span class="func">Graphics.DrawString</span> <span class="number">20</span>, <span class="number">150</span>, <span class="var">hour</span> + <span class="string">":"</span> + <span class="var">minute</span> + <span class="string">":"</span> + <span class="var">second</span>, <span class="var">YELLOW</span>
+<span class="keyword">RETURN</span></code></pre>
+
+<h3>Interactive Button with Collision</h3>
+<pre><code><span class="func">LET</span> <span class="var">pressCount</span> = <span class="number">0</span>
+<span class="func">LET</span> <span class="var">btnX</span> = <span class="number">10</span>
+<span class="func">LET</span> <span class="var">btnY</span> = <span class="number">200</span>
+<span class="func">LET</span> <span class="var">btnW</span> = <span class="number">150</span>
+<span class="func">LET</span> <span class="var">btnH</span> = <span class="number">50</span>
+<span class="func">LET</span> <span class="var">btnPressed</span> = <span class="number">0</span>
+
+<span class="label">:onMouseEvent</span>
+<span class="func">Collision.PointRect</span> <span class="var">event_x</span>,<span class="var">event_y</span>, <span class="var">btnX</span>,<span class="var">btnY</span>,<span class="var">btnW</span>,<span class="var">btnH</span>
+<span class="keyword">IF</span> <span class="var">collision_hit</span> = <span class="number">1</span> <span class="keyword">THEN</span>
+    <span class="keyword">IF</span> <span class="var">event_type</span> = <span class="string">"Down"</span> <span class="keyword">THEN</span>
+        <span class="func">LET</span> <span class="var">btnPressed</span> = <span class="number">1</span>
+        <span class="func">LET</span> <span class="var">pressCount</span> = <span class="var">pressCount</span> + <span class="number">1</span>
+    <span class="keyword">ENDIF</span>
+    <span class="keyword">IF</span> <span class="var">event_type</span> = <span class="string">"Up"</span> <span class="keyword">THEN</span>
+        <span class="func">LET</span> <span class="var">btnPressed</span> = <span class="number">0</span>
+    <span class="keyword">ENDIF</span>
+<span class="keyword">ENDIF</span>
+<span class="keyword">RETURN</span>
+
+<span class="label">:onDraw</span>
+<span class="func">Graphics.FillRect</span> <span class="number">0</span>, <span class="number">0</span>, <span class="var">win_w</span>, <span class="var">win_h</span>, <span class="var">BLACK</span>
+<span class="func">Graphics.DrawButton</span> <span class="var">btnX</span>,<span class="var">btnY</span>,<span class="var">btnW</span>,<span class="var">btnH</span>, <span class="string">"Click Me"</span>, <span class="var">btnPressed</span>
+<span class="func">Graphics.DrawString</span> <span class="number">10</span>, <span class="number">10</span>, <span class="string">"Clicks: "</span> + <span class="var">pressCount</span>, <span class="var">WHITE</span>
+<span class="keyword">RETURN</span></code></pre>
+
+<h3>Animated Particle System</h3>
+<pre><code><span class="func">LET</span> <span class="var">t</span> = <span class="number">0</span>
+
+<span class="label">:onUpdate</span>
+<span class="func">LET</span> <span class="var">t</span> = <span class="var">t</span> + <span class="var">delta_time</span>
+<span class="keyword">RETURN</span>
+
+<span class="label">:onDraw</span>
+<span class="func">Graphics.FillRect</span> <span class="number">0</span>, <span class="number">0</span>, <span class="var">win_w</span>, <span class="var">win_h</span>, <span class="var">BLACK</span>
+<span class="keyword">FOR</span> <span class="var">i</span> = <span class="number">0</span> <span class="keyword">TO</span> <span class="number">5</span>
+    <span class="func">LET</span> <span class="var">angle</span> = <span class="var">t</span> * <span class="number">60</span> + <span class="var">i</span> * <span class="number">60</span>
+    <span class="func">Math.Sin</span> <span class="var">angle</span>
+    <span class="func">LET</span> <span class="var">px</span> = <span class="number">400</span> + <span class="var">result</span> * <span class="number">150</span>
+    <span class="func">Math.Cos</span> <span class="var">angle</span>
+    <span class="func">LET</span> <span class="var">py</span> = <span class="number">300</span> + <span class="var">result</span> * <span class="number">150</span>
+    <span class="func">Graphics.FillCircle</span> <span class="var">px</span>, <span class="var">py</span>, <span class="number">8</span>, <span class="var">CYAN</span>
+    <span class="func">Graphics.FillCircle</span> <span class="var">px</span>, <span class="var">py</span>, <span class="number">4</span>, <span class="var">WHITE</span>
+<span class="keyword">NEXT</span>
+<span class="keyword">RETURN</span></code></pre>
+
+<h3>Keyboard-Controlled Movement</h3>
+<pre><code><span class="func">LET</span> <span class="var">px</span> = <span class="number">400</span>
+<span class="func">LET</span> <span class="var">py</span> = <span class="number">300</span>
+<span class="func">LET</span> <span class="var">speed</span> = <span class="number">200</span>
+
+<span class="label">:onUpdate</span>
+<span class="func">SYSTEM.APPNAME</span> <span class="string">"Keyboard Control"</span>
+<span class="keyword">RETURN</span>
+
+<span class="label">:onKeyboardEvent</span>
+<span class="keyword">IF</span> <span class="var">event_type</span> = <span class="string">"KeyDown"</span> <span class="keyword">THEN</span>
+    <span class="keyword">IF</span> <span class="var">event_value</span> = <span class="string">"ArrowLeft"</span> <span class="keyword">THEN</span> <span class="func">LET</span> <span class="var">px</span> = <span class="var">px</span> - <span class="var">speed</span> * <span class="var">delta_time</span>
+    <span class="keyword">IF</span> <span class="var">event_value</span> = <span class="string">"ArrowRight"</span> <span class="keyword">THEN</span> <span class="func">LET</span> <span class="var">px</span> = <span class="var">px</span> + <span class="var">speed</span> * <span class="var">delta_time</span>
+    <span class="keyword">IF</span> <span class="var">event_value</span> = <span class="string">"ArrowUp"</span> <span class="keyword">THEN</span> <span class="func">LET</span> <span class="var">py</span> = <span class="var">py</span> - <span class="var">speed</span> * <span class="var">delta_time</span>
+    <span class="keyword">IF</span> <span class="var">event_value</span> = <span class="string">"ArrowDown"</span> <span class="keyword">THEN</span> <span class="func">LET</span> <span class="var">py</span> = <span class="var">py</span> + <span class="var">speed</span> * <span class="var">delta_time</span>
+    <span class="keyword">IF</span> <span class="var">event_value</span> = <span class="string">"Escape"</span> <span class="keyword">THEN</span> <span class="func">System.Close</span>
+<span class="keyword">ENDIF</span>
+<span class="keyword">RETURN</span>
+
+<span class="label">:onDraw</span>
+<span class="func">Graphics.FillRect</span> <span class="number">0</span>, <span class="number">0</span>, <span class="var">win_w</span>, <span class="var">win_h</span>, <span class="var">BLACK</span>
+<span class="func">Graphics.FillCircle</span> <span class="var">px</span>, <span class="var">py</span>, <span class="number">16</span>, <span class="var">CYAN</span>
+<span class="func">Graphics.DrawString</span> <span class="number">10</span>, <span class="number">10</span>, <span class="string">"Arrow keys to move"</span>, <span class="var">GRAY</span>
+<span class="keyword">RETURN</span></code></pre>
+
+<h3>System Monitor with Network</h3>
+<pre><code><span class="label">:onUpdate</span>
+<span class="func">SYSTEM.APPNAME</span> <span class="string">"Monitor Pro"</span>
+<span class="func">SYSTEM.TOP</span>
+<span class="func">System.GetCpuTemp</span>
+<span class="func">Network.IsConnected</span>
+<span class="func">Network.GetIP</span>
+<span class="keyword">RETURN</span>
+
+<span class="label">:onDraw</span>
+<span class="func">Graphics.FillRect</span> <span class="number">0</span>, <span class="number">0</span>, <span class="var">win_w</span>, <span class="var">win_h</span>, <span class="var">BLACK</span>
+<span class="func">Graphics.DrawString</span> <span class="number">15</span>, <span class="number">12</span>, <span class="string">"Monitor Pro"</span>, <span class="var">CYAN</span>
+<span class="func">Graphics.DrawLine</span> <span class="number">15</span>, <span class="number">32</span>, <span class="number">200</span>, <span class="number">32</span>, <span class="var">BLUE</span>
+<span class="func">Graphics.DrawString</span> <span class="number">15</span>, <span class="number">48</span>, <span class="string">"Heap: "</span> + <span class="var">mem_free</span> + <span class="string">" B"</span>, <span class="var">WHITE</span>
+<span class="func">Graphics.DrawString</span> <span class="number">15</span>, <span class="number">68</span>, <span class="string">"PSRAM: "</span> + <span class="var">psram_free</span> + <span class="string">" B"</span>, <span class="var">WHITE</span>
+<span class="func">Graphics.DrawString</span> <span class="number">15</span>, <span class="number">88</span>, <span class="string">"CPU Temp: "</span> + <span class="var">cpu_temp</span>, <span class="var">ORANGE</span>
+<span class="keyword">IF</span> <span class="var">net_connected</span> = <span class="number">1</span> <span class="keyword">THEN</span>
+    <span class="func">Graphics.DrawString</span> <span class="number">15</span>, <span class="number">118</span>, <span class="string">"WiFi: "</span> + <span class="var">net_ip</span>, <span class="var">GREEN</span>
+<span class="keyword">ELSE</span>
+    <span class="func">Graphics.DrawString</span> <span class="number">15</span>, <span class="number">118</span>, <span class="string">"WiFi: Disconnected"</span>, <span class="var">RED</span>
+<span class="keyword">ENDIF</span>
+<span class="keyword">RETURN</span></code></pre>
+
+<footer>
+    BlueScript Programming Guide &mdash; Project Blue &mdash; ESP32-P4
+</footer>
+
+</div>
+</div>
+</body>
+</html>
